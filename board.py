@@ -11,6 +11,8 @@ class Board:
         
         self._add_pieces('white')
         self._add_pieces('black')
+        
+        self.last_move = None
     
     def calc_moves(self, piece, row, col):
         """
@@ -175,6 +177,24 @@ class Board:
         
         elif isinstance(piece, King):
             king_moves()
+    
+    def valid_move(self, piece, move):
+        return move in piece.moves
+    
+    def move(self, piece, move):
+        initial = move.initial
+        final = move.final
+        
+        self.squares[initial.row][initial.col].piece = None
+        self.squares[final.row][final.col].piece = piece
+        
+        piece.moved = True
+        
+        # clear valid moves
+        piece.clear_moves()
+        
+        self.last_move = move
+    
     
     # starting with _ represents them as private methods
     def _create(self):
