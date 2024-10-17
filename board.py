@@ -42,7 +42,7 @@ class Board:
                     break
                 
             # diagonal moves
-            move_row = row * piece.dir
+            move_row = row + piece.dir
             move_cols = [col - 1, col + 1] # to left and to right
             
             for move_col in move_cols:
@@ -181,12 +181,20 @@ class Board:
     def valid_move(self, piece, move):
         return move in piece.moves
     
+    def check_promotion(self, piece, final):
+        if final.row == 0 or final.row == 7:
+            self.squares[final.row][final.col].piece = Queen(piece.color)
+    
     def move(self, piece, move):
         initial = move.initial
         final = move.final
         
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
+        
+        # pawn promotion
+        if isinstance(piece, Pawn):
+            self.check_promotion(piece, final)
         
         piece.moved = True
         

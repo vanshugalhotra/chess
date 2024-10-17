@@ -106,10 +106,18 @@ class Main:
                     
                     dragger.undrag_piece()
                 
-                # key press
+                # key press events
                 elif event.type == pygame.KEYDOWN:
+                    # key pressed "t"
                     if event.key == pygame.K_t:
                         game.change_theme()
+                        
+                    # key pressed "r"
+                    if event.key == pygame.K_r:
+                        game.reset()
+                        game = self.game
+                        board = self.game.board
+                        dragger = self.game.dragger
                 
                 # quit
                 elif event.type == pygame.QUIT:
