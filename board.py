@@ -75,6 +75,7 @@ class Board:
         Calculate all the possible (valid) moves of an specific piece on a specific position
         
         """
+        piece.clear_moves()
         
         def pawn_moves():
             steps = 1 if piece.moved else 2
