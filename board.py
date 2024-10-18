@@ -25,7 +25,6 @@ class Board:
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
                 
-        # pawn promotion
         if isinstance(piece, Pawn):
             diff = final.col - initial.col
             if diff != 0 and en_passant_empty:
@@ -85,7 +84,6 @@ class Board:
             for col in range(COLS):
                 if temp_board.squares[row][col].has_rival_piece(piece.color):
                     p = temp_board.squares[row][col].piece
-                    
                     temp_board.calc_moves(p, row, col, bool=False)
                     for m in p.moves: #valid piece for the enemy's piece
                         if isinstance(m.final.piece, King):
@@ -276,10 +274,8 @@ class Board:
                 (row+0, col-1), # left
                 (row-1, col-1), # up-left
             ]
-            
             for possible_move in adjs:
                 possible_move_row, possible_move_col = possible_move
-                
                 if Square.in_range(possible_move_row, possible_move_col):
                     if self.squares[possible_move_row][possible_move_col].isempty_or_rival(piece.color):
                         initial = Square(row, col)
@@ -291,10 +287,10 @@ class Board:
                         if bool:
                             if not self.in_check(piece, move):
                                 piece.add_move(move)
-                            else: break
+                            else:pass
                         else:
                             piece.add_move(move)
-                        
+                
             # castling moves
             if not piece.moved:
                 # queen side castling

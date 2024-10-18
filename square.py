@@ -26,7 +26,7 @@ class Square:
     
     def isempty_or_rival(self, color):
         return self.isempty() or self.has_rival_piece(color)
-    
+        
     @staticmethod
     def in_range(*args): # not a class method, we can call static method with object
         for arg in args:
@@ -39,3 +39,4 @@ class Square:
         ALPHACOLS = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'}
         
         return ALPHACOLS[col]
+    

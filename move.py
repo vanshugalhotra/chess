@@ -8,10 +8,12 @@ class Move:
         self.final = final
         
     def __str__(self):
-        s = ''
-        s += f'({self.initial.col}, {initial.row})'
-        s += f' -> ({self.final.col}, {final.row})'
+        ranki = 8 - (self.initial.row)
+        filei = chr(ord('a') + self.initial.col)
+        rankf = 8 - (self.final.row)
+        filef = chr(ord('a') + self.final.col)
+        s = f'{filei}{ranki}{filef}{rankf}'
         return s
-    
+        
     def __eq__(self, other):
         return self.initial == other.initial and self.final == other.final

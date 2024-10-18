@@ -83,6 +83,7 @@ class Main:
                         # create possible move
                         initial = Square(dragger.initial_row, dragger.initial_col)
                         final = Square(released_row, released_col)
+                        
                         move = Move(initial, final)
                         
                         # valid move
