@@ -74,7 +74,7 @@ class Board:
                     
         piece.en_passant = True
             
-    def in_check(self,piece, move):
+    def in_check(self,piece, move): # checks if after moving the piece my king is in check or not
         temp_piece = copy.deepcopy(piece)
         temp_board = copy.deepcopy(self) # cloning our board
         
@@ -279,7 +279,8 @@ class Board:
                 if Square.in_range(possible_move_row, possible_move_col):
                     if self.squares[possible_move_row][possible_move_col].isempty_or_rival(piece.color):
                         initial = Square(row, col)
-                        final = Square(possible_move_row, possible_move_col)
+                        final_piece = self.squares[possible_move_row][possible_move_col].piece
+                        final = Square(possible_move_row, possible_move_col, final_piece)
                         
                         move = Move(initial, final)
                         
@@ -287,7 +288,7 @@ class Board:
                         if bool:
                             if not self.in_check(piece, move):
                                 piece.add_move(move)
-                            else:pass
+                            else: continue
                         else:
                             piece.add_move(move)
                 
