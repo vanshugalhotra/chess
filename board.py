@@ -292,7 +292,7 @@ class Board:
                         else:
                             piece.add_move(move)
                 
-            # castling moves
+            # castling moves, make sure (we can't castle if we are in check, castle through check and into check)
             if not piece.moved:
                 # queen side castling
                 left_rook = self.squares[row][0].piece
@@ -309,16 +309,20 @@ class Board:
                                 # rook Move
                                 initial = Square(row, 0)
                                 final = Square(row, 3)
-                                moveR = Move(initial, final)
+                                moveR = Move(initial, final) # can't castle into the check
                                 
                                 # king Move
                                 initial = Square(row, col)
                                 final = Square(row, 2)
-                                moveK = Move(initial, final)
+                                moveK = Move(initial, final) # can't castle if check
                                 
+                                # if D1 is attacked then we can't castle queen side (for white) d8 for black
+                                initial = Square(row, col)
+                                final = Square(row, 3)
+                                moveD = Move(initial, final) # cant castle through the check
                                 # check potential checks
                                 if bool:
-                                    if not self.in_check(piece, moveK) and not self.in_check(left_rook, moveR):
+                                    if not self.in_check(piece, moveK) and not self.in_check(left_rook, moveR) and not self.in_check(piece, moveD):
                                         left_rook.add_move(moveR)
                                         piece.add_move(moveK)
                                 else:
@@ -340,17 +344,21 @@ class Board:
                                 # rook Move
                                 initial = Square(row, 7)
                                 final = Square(row, 5)
-                                moveR = Move(initial, final)
+                                moveR = Move(initial, final) # cant castle into the check
                                 
                                 # king Move
                                 initial = Square(row, col)
                                 final = Square(row, 6)
-                                moveK = Move(initial, final)
+                                moveK = Move(initial, final) # cant castle if check
                                 
+                                # if F1 is attacked then we can't castle king side (for white) f8 for black
+                                initial = Square(row, col)
+                                final = Square(row, 5)
+                                moveF = Move(initial, final) # cant castle through the check
                                 
                                 # check potential checks
                                 if bool:
-                                    if not self.in_check(piece, moveK) and not self.in_check(right_rook, moveR):
+                                    if not self.in_check(piece, moveK) and not self.in_check(right_rook, moveR) and not self.in_check(piece, moveF):
                                         right_rook.add_move(moveR)
                                         piece.add_move(moveK)
                                 else:
