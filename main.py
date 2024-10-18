@@ -23,6 +23,7 @@ class Main:
             
             game.show_bg(screen)
             game.show_last_move(screen)
+            game.show_check(screen)
             game.show_moves(screen)
             game.show_pieces(screen)
             game.show_hover(screen)
@@ -51,6 +52,7 @@ class Main:
                             
                             #show methods
                             game.show_bg(screen)
+                            game.show_check(screen)
                             game.show_last_move(screen)
                             game.show_moves(screen)
                             game.show_pieces(screen)
@@ -65,6 +67,7 @@ class Main:
                         dragger.update_mouse(event.pos) # first update the mouse position,
                         
                         game.show_bg(screen)
+                        game.show_check(screen)
                         game.show_last_move(screen)
                         game.show_moves(screen)
                         game.show_pieces(screen)
@@ -99,6 +102,7 @@ class Main:
                             # draw or show methods
                             game.show_bg(screen)
                             game.show_last_move(screen)
+                            game.show_check(screen)
                             game.show_pieces(screen)
                             
                             # change the turn

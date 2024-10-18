@@ -4,6 +4,7 @@ from board import Board
 from config import Config
 from square import Square
 from dragger import Dragger
+from piece import Piece
 class Game:
     
     def __init__(self):
@@ -94,11 +95,24 @@ class Game:
                 
                 pygame.draw.rect(surface, color, rect)
                 
+    def show_check(self, surface):
+        theme = self.config.theme
+        if Piece.KingInCheck:
+            #color
+            color = CHECK
+            # rect
+            if(self.next_player == "white"):
+                row, col = Piece.KingSquares[0]
+            else:
+                row, col = Piece.KingSquares[1]
+            rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
+            #blit it
+            pygame.draw.rect(surface, color, rect)
+                
     def show_hover(self, surface ):
         if self.hovered_sqr:
                 # color
                 color = HOVERED_COLOR
-                
                 # rect
                 rect = (self.hovered_sqr.col * SQSIZE, self.hovered_sqr.row * SQSIZE, SQSIZE, SQSIZE)
                 

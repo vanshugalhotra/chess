@@ -19,9 +19,15 @@ class Board:
         
     def move(self, piece, move, testing=False):
         initial = move.initial
-        final = move.final
+        final = move.final        
+        
+        # # checking if is in Check
+        if not testing:
+            Piece.KingInCheck = self.in_check(piece,move,opp=True)
             
         en_passant_empty = self.squares[final.row][final.col].isempty()
+
+        
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
                 
@@ -39,20 +45,24 @@ class Board:
             else:
                 self.check_promotion(piece, final)
             
-        # castling
         if isinstance(piece, King):
-            if self.castling(initial, final) and not testing:
+            if self.castling(initial, final) and not testing: # castling
                 diff = final.col - initial.col
                 rook = piece.left_rook if diff < 0 else piece.right_rook
                 self.move(rook, rook.moves[-1]) # need to move the rook 
-
-        
+                
+            # updating king KingSquares
+            if piece.color == "white":
+                Piece.KingSquares[0] = (move.final.row, move.final.col)
+            else:
+                Piece.KingSquares[1] = (move.final.row, move.final.col)
+                        
         piece.moved = True
         
         # clear valid moves
         piece.clear_moves()
-        self.last_move = move
-    
+        self.last_move = move  
+
         
     def valid_move(self, piece, move):
         return move in piece.moves
@@ -74,7 +84,7 @@ class Board:
                     
         piece.en_passant = True
             
-    def in_check(self,piece, move): # checks if after moving the piece my king is in check or not
+    def in_check(self,piece, move, opp = False): # checks if after moving the piece my king is in check or not
         temp_piece = copy.deepcopy(piece)
         temp_board = copy.deepcopy(self) # cloning our board
         
@@ -82,14 +92,16 @@ class Board:
         
         for row in range(ROWS):
             for col in range(COLS):
-                if temp_board.squares[row][col].has_rival_piece(piece.color):
+                color = piece.color
+                if(opp):
+                    color = "white" if piece.color == "black" else "black"
+                if temp_board.squares[row][col].has_rival_piece(color):
                     p = temp_board.squares[row][col].piece
                     temp_board.calc_moves(p, row, col, bool=False)
                     for m in p.moves: #valid piece for the enemy's piece
                         if isinstance(m.final.piece, King):
                             return True
-        return False
-        
+        return False    
     
     def calc_moves(self, piece, row, col, bool=True):
         """

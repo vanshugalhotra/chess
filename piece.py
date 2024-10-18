@@ -1,7 +1,8 @@
 import os
 
 class Piece:
-    
+    KingInCheck = False
+    KingSquares = [(7, 4), (0, 4)] # white, black
     def __init__(self, name, color, value, texture=None, texture_rect=None):
         self.name = name
         self.color = color
