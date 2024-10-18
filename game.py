@@ -21,7 +21,6 @@ class Game:
         for row in range(ROWS):
             for col in range(COLS):
                 color = theme.bg.light if ((row + col) & 1 == 0) else theme.bg.dark
-                                    
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect)
                 
@@ -99,7 +98,7 @@ class Game:
         theme = self.config.theme
         if Piece.KingInCheck:
             #color
-            color = CHECK
+            color = CHECKMATE if Board.checkmate else CHECK
             # rect
             if(self.next_player == "white"):
                 row, col = Piece.KingSquares[0]
