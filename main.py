@@ -74,7 +74,6 @@ class Main:
                 
                 # click release
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    
                     if dragger.dragging:
                         dragger.update_mouse(event.pos)
                         
@@ -86,12 +85,13 @@ class Main:
                         final = Square(released_row, released_col)
                         move = Move(initial, final)
                         
+                        # valid move
                         if board.valid_move(dragger.piece, move):
-                            
                             captured = board.squares[released_row][released_col].has_piece()
                             
                             board.move(dragger.piece, move)
                             
+                            board.set_true_en_passsant(dragger.piece)
                             # play sound
                             game.play_sound(captured)
                             
@@ -102,7 +102,9 @@ class Main:
                             
                             # change the turn
                             game.next_turn()
-                            
+                        
+                        else: # if just picked it and not moved
+                            dragger.piece.clear_moves()
                     
                     dragger.undrag_piece()
                 
