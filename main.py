@@ -35,7 +35,7 @@ class Main:
                 game.show_pieces(screen)
                 game.show_hover(screen)
                 
-                game.show_players(screen)
+                play_button = game.show_rightSide(screen)
                 
                 if dragger.dragging:
                     dragger.update_blit(screen)
@@ -49,6 +49,18 @@ class Main:
                     if not Board.checkmate:
                         # click event
                         if event.type == pygame.MOUSEBUTTONDOWN:
+                            
+                            # checking for play button click
+                            if event.button == 1:  # Left mouse button
+                                mouse_pos = pygame.mouse.get_pos()
+                                # Check if the button was clicked
+                                if play_button.collidepoint(mouse_pos):
+                                    game.start = True  # Set start to True when clicked
+                                
+                            
+                            if not game.start: # till game is started
+                                continue
+                            
                             dragger.update_mouse(event.pos) # event.pos will give (x, y) where the click event was made
                             
                             clicked_row = dragger.mouseY // SQSIZE # getting the row which we clicked
@@ -144,7 +156,8 @@ class Main:
                     elif event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
-
+                
+                
                 pygame.display.update()
                 clock.tick(60)
             

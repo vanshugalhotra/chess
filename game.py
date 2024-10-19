@@ -6,6 +6,7 @@ from square import Square
 from dragger import Dragger
 from piece import Piece
 from player import Player
+import time
 
 class Game:
     
@@ -16,8 +17,10 @@ class Game:
         self.dragger = Dragger()
         self.config = Config()
         self.start = False
-        self.player1 = Player("Vanshu Galhotra", "me.png")
-        self.player2 = Player("Ustaad Ji", "ustaad.png")
+        self.white = Player("Vanshu Galhotra", "me.png")
+        self.black = Player("Ustaad Ji", "ustaad.png")
+        
+        self.current_player = self.white
         
     # render methods
     
@@ -147,7 +150,7 @@ class Game:
             # Draw the msg itself
             screen.blit(msg, msg_rect)
     
-    def show_players(self, surface):
+    def show_rightSide(self, surface):
         padding_left = 20
         card_width = 180 
         card_height = 220  
@@ -201,6 +204,8 @@ class Game:
             button_text = button_font.render("PLAY", True, button_text_color)
             text_rect = button_text.get_rect(center=(button_x + button_width // 2, button_y + button_height // 2))
             surface.blit(button_text, text_rect)
+            
+            return button_rect
 
         # Function to draw each player's card
         def draw_player_card(player, pos_x, pos_y, clock_pos, clock_bg_color, clock_text_color, align):
@@ -242,16 +247,21 @@ class Game:
             surface.blit(clock_surface, clock_surface_rect)
 
         clock_pos_player1 = (pos_x1 + card_width - 20, pos_y1 + 10) 
-        draw_player_card(self.player1, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
+        draw_player_card(self.white, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
         
         clock_pos_player2 = (pos_x2 - 150, pos_y1 + 10) 
-        draw_player_card(self.player2, pos_x2, pos_y1, clock_pos_player2, (30, 30, 30), (255, 255, 255), align='left') 
+        draw_player_card(self.black, pos_x2, pos_y1, clock_pos_player2, (30, 30, 30), (255, 255, 255), align='left') 
         
-        draw_start_button()
+        button_rect = draw_start_button()
+        return button_rect
         
     # other methods
     
-    def next_turn(self):
+    def next_turn(self):       
+        # switch players
+        self.current_player = self.black if self.current_player == self.white else self.white
+        
+         
         self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
         self.constants.ply += 1
         
@@ -273,6 +283,7 @@ class Game:
         Board.checkmate = False
         Piece.KingInCheck = False
         Piece.KingSquares = [(7, 4), (0, 4)] # white, black
+    
     
     @staticmethod
     def format_time(seconds):
