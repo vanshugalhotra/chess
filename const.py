@@ -1,6 +1,9 @@
 # screen dimensions
-WIDTH = 650
-HEIGHT = 650
+WIDTH = 700
+HEIGHT = 700
+
+WIDTH_OFFSET = 700
+HEIGHT_OFFSET = 0
 
 # Board dimensions
 ROWS = 8
@@ -13,6 +16,7 @@ HOVERED_COLOR = (60, 50, 150)
 CHECKMATE = '#ff4500'
 CHECK = '#dc143c'
 MESSAGE = '#dc143c'
+BACKGROUND = '#312e2b'
 
 class Constants:
     def __init__(self):
@@ -27,5 +31,8 @@ class Constants:
 # todo: Check Effect  ✅
 # todo: Checkmate ✅
 # todo: Stalemate
+# todo: Clock and move list
 # todo: FEN Parser
 # todo: UCI Protocol
+# todo : MENU BAR
+# todo: promotion bug fix
