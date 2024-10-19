@@ -4,6 +4,7 @@ from const import *
 from game import Game
 from square import Square
 from move import Move
+from board import Board
 
 class Main: 
     def __init__(self):
@@ -30,91 +31,96 @@ class Main:
             
             if dragger.dragging:
                 dragger.update_blit(screen)
+                
+            if Board.checkmate:
+                game.display_message(screen, "Checkmate!!")
             
             for event in pygame.event.get():
                 
-                # click event
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    dragger.update_mouse(event.pos) # event.pos will give (x, y) where the click event was made
-                    
-                    clicked_row = dragger.mouseY // SQSIZE # getting the row which we clicked
-                    clicked_col = dragger.mouseX // SQSIZE
-                    
-                    # if theres a piece on the clicked area
-                    if board.squares[clicked_row][clicked_col].has_piece():
-                        piece = board.squares[clicked_row][clicked_col].piece
+                if not Board.checkmate:
+                    # click event
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        dragger.update_mouse(event.pos) # event.pos will give (x, y) where the click event was made
                         
-                        # valid piece color?
-                        if piece.color == game.next_player:
-                            board.calc_moves(piece, clicked_row, clicked_col, wannaCheck=True)
-                            dragger.save_initial(event.pos)
-                            dragger.drag_piece(piece)
+                        clicked_row = dragger.mouseY // SQSIZE # getting the row which we clicked
+                        clicked_col = dragger.mouseX // SQSIZE
+                        
+                        # if theres a piece on the clicked area
+                        if board.squares[clicked_row][clicked_col].has_piece():
+                            piece = board.squares[clicked_row][clicked_col].piece
                             
-                            #show methods
+                            # valid piece color?
+                            if piece.color == game.next_player:
+                                board.calc_moves(piece, clicked_row, clicked_col, wannaCheck=True)
+                                dragger.save_initial(event.pos)
+                                dragger.drag_piece(piece)
+                                
+                                #show methods
+                                game.show_bg(screen)
+                                game.show_check(screen)
+                                game.show_last_move(screen)
+                                game.show_moves(screen)
+                                game.show_pieces(screen)
+                    
+                    # mouse motion
+                    elif event.type == pygame.MOUSEMOTION:
+                        motion_row = event.pos[1] // SQSIZE
+                        motion_col = event.pos[0] // SQSIZE
+                        game.set_hover(motion_row, motion_col)
+                        
+                        if dragger.dragging: # mouse motion is active everytime we move mouse, we need to drag a piece only if dragging is True
+                            dragger.update_mouse(event.pos) # first update the mouse position,
+                            
                             game.show_bg(screen)
                             game.show_check(screen)
                             game.show_last_move(screen)
                             game.show_moves(screen)
                             game.show_pieces(screen)
-                
-                # mouse motion
-                elif event.type == pygame.MOUSEMOTION:
-                    motion_row = event.pos[1] // SQSIZE
-                    motion_col = event.pos[0] // SQSIZE
-                    game.set_hover(motion_row, motion_col)
+                            game.show_hover(screen)
+                            dragger.update_blit(screen)
+                            
                     
-                    if dragger.dragging: # mouse motion is active everytime we move mouse, we need to drag a piece only if dragging is True
-                        dragger.update_mouse(event.pos) # first update the mouse position,
-                        
-                        game.show_bg(screen)
-                        game.show_check(screen)
-                        game.show_last_move(screen)
-                        game.show_moves(screen)
-                        game.show_pieces(screen)
-                        game.show_hover(screen)
-                        dragger.update_blit(screen)
-                        
-                
-                # click release
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    if dragger.dragging:
-                        dragger.update_mouse(event.pos)
-                        
-                        released_row = dragger.mouseY // SQSIZE
-                        released_col = dragger.mouseX // SQSIZE
-                        
-                        # create possible move
-                        initial = Square(dragger.initial_row, dragger.initial_col)
-                        final = Square(released_row, released_col)
-                        
-                        move = Move(initial, final)
-                        
-                        # valid move
-                        if board.valid_move(dragger.piece, move):
-                            captured = board.squares[released_row][released_col].has_piece()
+                    # click release
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        if dragger.dragging:
+                            dragger.update_mouse(event.pos)
                             
-                            board.move(dragger.piece, move)
+                            released_row = dragger.mouseY // SQSIZE
+                            released_col = dragger.mouseX // SQSIZE
                             
-                            board.set_true_en_passsant(dragger.piece)
-                            # play sound
-                            game.play_sound(captured)
+                            # create possible move
+                            initial = Square(dragger.initial_row, dragger.initial_col)
+                            final = Square(released_row, released_col)
                             
-                            # draw or show methods
-                            game.show_bg(screen)
-                            game.show_last_move(screen)
-                            game.show_check(screen)
-                            game.show_pieces(screen)
+                            move = Move(initial, final)
                             
-                            # change the turn
-                            game.next_turn()
+                            # valid move
+                            if board.valid_move(dragger.piece, move):
+                                captured = board.squares[released_row][released_col].has_piece()
+                                
+                                board.move(dragger.piece, move)
+                                
+                                board.set_true_en_passsant(dragger.piece)
+                                # play sound
+                                game.play_sound(captured)
+                                
+                                # draw or show methods
+                                game.show_bg(screen)
+                                game.show_last_move(screen)
+                                game.show_check(screen)
+                                game.show_pieces(screen)
+                                
+                                # change the turn
+                                game.next_turn()
+                            
+                            else: # if just picked it and not moved
+                                dragger.piece.clear_moves()
                         
-                        else: # if just picked it and not moved
-                            dragger.piece.clear_moves()
+                        dragger.undrag_piece()
                     
-                    dragger.undrag_piece()
-                
+                    
                 # key press events
-                elif event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
                     # key pressed "t"
                     if event.key == pygame.K_t:
                         game.change_theme()

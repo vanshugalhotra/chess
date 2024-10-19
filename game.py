@@ -117,6 +117,33 @@ class Game:
                 
                 pygame.draw.rect(surface, color, rect, width=3)
                 
+    def display_message(self, screen, message):
+            font = pygame.font.SysFont('Arial', 80, bold=True)
+            msg = font.render(message, True, (255, 255, 255))  # White text
+
+            # msg background dimensions
+            msg_rect = msg.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+            background_rect = pygame.Rect(
+                msg_rect.left - 20,  # Padding for background
+                msg_rect.top - 20,
+                msg_rect.width + 40,
+                msg_rect.height + 40
+            )
+
+            # Draw background (e.g., dark blue)
+            pygame.draw.rect(screen, (0, 0, 128), background_rect, border_radius=10)
+
+            # Add a border around the background (e.g., gold color)
+            pygame.draw.rect(screen, (255, 215, 0), background_rect, 5, border_radius=10)
+
+            # Shadow effect (slightly offset black text)
+            shadow_msg = font.render(message, True, (0, 0, 0))
+            shadow_offset = 5
+            screen.blit(shadow_msg, shadow_msg.get_rect(center=(WIDTH // 2 + shadow_offset, HEIGHT // 2 + shadow_offset)))
+
+            # Draw the msg itself
+            screen.blit(msg, msg_rect)
+    
     # other methods
     
     def next_turn(self):
@@ -137,4 +164,7 @@ class Game:
     
     def reset(self):
         self.__init__()
+        Board.checkmate = False
+        Piece.KingInCheck = False
+        Piece.KingSquares = [(7, 4), (0, 4)] # white, black
         

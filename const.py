@@ -12,10 +12,11 @@ SQSIZE = WIDTH // COLS
 HOVERED_COLOR = (60, 50, 150)
 CHECKMATE = '#ff4500'
 CHECK = '#dc143c'
+MESSAGE = '#dc143c'
 
 # ! need to refactor - in check
 
-# todo: Check Effect 
-# todo: Checkmate
+# todo: Check Effect  ✅
+# todo: Checkmate ✅
 # todo: FEN Parser
 # todo: UCI Protocol
