@@ -2,7 +2,7 @@
 WIDTH = 700
 HEIGHT = 700
 
-WIDTH_OFFSET = 700
+WIDTH_OFFSET = 740
 HEIGHT_OFFSET = 0
 
 # Board dimensions

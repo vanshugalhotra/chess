@@ -15,8 +15,9 @@ class Game:
         self.board = Board(self.constants)
         self.dragger = Dragger()
         self.config = Config()
-        self.player1 = Player("Vanshu", "me.png")
-        self.player2 = Player("UstaadJI", "ustaad.png")
+        self.start = False
+        self.player1 = Player("Vanshu Galhotra", "me.png")
+        self.player2 = Player("Ustaad Ji", "ustaad.png")
         
     # render methods
     
@@ -147,37 +148,69 @@ class Game:
             screen.blit(msg, msg_rect)
     
     def show_players(self, surface):
-        # Adjusted card dimensions and spacing
         padding_left = 20
-        card_width = 180  # Reduced card width
-        card_height = 220  # Reduced card height
-        image_size = 170  # Adjust image size to fit the card width
-        padding = (WIDTH_OFFSET - 2 * (card_width + padding_left))  # Adjust space between the two cards
+        card_width = 180 
+        card_height = 220  
+        image_size = 170  
+        padding = (WIDTH_OFFSET - 2*(card_width + padding_left))  
 
         # Card positions for player1 (left) and player2 (right)
         pos_x1 = WIDTH + padding_left  # X position for player1
-        pos_y1 = 10   # Y position for both players
+        pos_y1 = 20  
         pos_x2 = pos_x1 + card_width + padding  # X position for player2
 
-        # Background color for card (darker than the screen background)
-        card_color = (41, 40, 38)  # A darker grey (close to #312e2b, slightly darker)
+        card_color = (50, 45, 42)  # Darker grey to contrast with the background
 
-        # Shadow color for floating effect (reduced further)
-        shadow_color = (0, 0, 0, 30)  # Lighter black for subtle shadow
+        shadow_offset = 8
+        shadow_color = (30, 30, 30)  # Darker shadow color
 
         # Text properties
-        font = pygame.font.SysFont('Arial', 22, bold=True)  # Slightly smaller font for name
+        font = pygame.font.SysFont('Arial', 22, bold=True)
         text_color = (255, 255, 255)  # White text
+        
+        # Start button properties
+        button_width = 150
+        button_height = 50
+        button_color = (44, 62, 80)  # Dark Blue color (background)
+        button_hover_color = (52, 152, 219)  # Brighter gradient-like blue on hover
+        button_text_color = (241, 196, 15)  # Soft Yellow text
+        shadow_color = (30, 30, 30)  # Dark shadow color
+        shadow_offset = 5  # Distance for the shadow
+        button_font = pygame.font.SysFont('Arial', 26, bold=True)
+
+        # Calculate Start button position (centered between the two cards)
+        button_x = (pos_x1 + card_width + pos_x2) // 2 - button_width // 2
+        button_y = pos_y1 + card_height // 2 - button_height // 2 + 20
+
+        def is_mouse_over_button(mouse_pos, rect):
+            return rect.collidepoint(mouse_pos)
+
+        def draw_start_button():
+            mouse_pos = pygame.mouse.get_pos()
+            button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+
+            # Draw shadow
+            shadow_rect = pygame.Rect(button_x + shadow_offset, button_y + shadow_offset, button_width, button_height)
+            pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=10)
+            
+            if is_mouse_over_button(mouse_pos, button_rect):
+                pygame.draw.rect(surface, button_hover_color, button_rect, border_radius=10)
+            else:
+                pygame.draw.rect(surface, button_color, button_rect, border_radius=10)
+
+            button_text = button_font.render("PLAY", True, button_text_color)
+            text_rect = button_text.get_rect(center=(button_x + button_width // 2, button_y + button_height // 2))
+            surface.blit(button_text, text_rect)
 
         # Function to draw each player's card
-        def draw_player_card(player, pos_x, pos_y):
+        def draw_player_card(player, pos_x, pos_y, clock_pos, clock_bg_color, clock_text_color, align):
+            # Draw the shadow first, offset behind the card
+            shadow_rect = pygame.Rect(pos_x + shadow_offset, pos_y + shadow_offset, card_width, card_height)
+            pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=15)
+
             # Load and scale player image (HD image with ideal resolution)
             player_img = pygame.image.load(player.image)
             player_img = pygame.transform.scale(player_img, (image_size, image_size))
-
-            # Create the shadow effect (minimal offset)
-            shadow_rect = pygame.Rect(pos_x + 1, pos_y + 1, card_width, card_height)
-            pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=15)
 
             # Create the card background
             card_rect = pygame.Rect(pos_x, pos_y, card_width, card_height)
@@ -186,23 +219,35 @@ class Game:
             # Blit the player image (covering the entire top part of the card)
             surface.blit(player_img, (pos_x, pos_y))
 
-            # Render the player's name and slightly stretch horizontally
+            # Render and display the player's name
             player_name = font.render(player.name, True, text_color)
-            # Slight horizontal stretch for the name text
-            player_name_stretched = pygame.transform.scale(player_name, (player_name.get_width() + 20, player_name.get_height()))
-            name_rect = player_name_stretched.get_rect(center=(pos_x + card_width // 2, pos_y + image_size + 30))  # Adjusted name placement
-            surface.blit(player_name_stretched, name_rect)
+            name_rect = player_name.get_rect(center=(pos_x + card_width // 2, pos_y + image_size + 30))
+            surface.blit(player_name, name_rect)
 
-        # Draw the cards for both players
-        draw_player_card(self.player1, pos_x1, pos_y1)  # Player 1 on the left
-        draw_player_card(self.player2, pos_x2, pos_y1)  # Player 2 on the right
+            clock_width = 160  
+            clock_height = 40  
+            clock_rect = pygame.Rect(clock_pos[0], clock_pos[1], clock_width, clock_height)
+            pygame.draw.rect(surface, clock_bg_color, clock_rect, border_radius=8) 
 
+            # Render and display the player's time
+            clock_font = pygame.font.SysFont('Lucida Console', 25, bold=True) 
+            player_time = Game.format_time(player.time) 
+            clock_surface = clock_font.render(player_time, True, clock_text_color)
+            
+            if align == 'right':
+                clock_surface_rect = clock_surface.get_rect(right=clock_pos[0] + clock_width - 10, centery=clock_pos[1] + clock_height // 2)
+            else:
+                clock_surface_rect = clock_surface.get_rect(left=clock_pos[0] + 10, centery=clock_pos[1] + clock_height // 2)
 
+            surface.blit(clock_surface, clock_surface_rect)
 
-
-
-
-
+        clock_pos_player1 = (pos_x1 + card_width - 20, pos_y1 + 10) 
+        draw_player_card(self.player1, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
+        
+        clock_pos_player2 = (pos_x2 - 150, pos_y1 + 10) 
+        draw_player_card(self.player2, pos_x2, pos_y1, clock_pos_player2, (30, 30, 30), (255, 255, 255), align='left') 
+        
+        draw_start_button()
         
     # other methods
     
