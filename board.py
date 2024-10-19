@@ -49,9 +49,6 @@ class Board:
             if(self.squares[final.row][final.col].has_rival_piece(piece.color)):
                 self.constants.fiftyMove = 0 # resetting fiftyMove if we made a capture
             
-            
-        en_passant_empty = self.squares[final.row][final.col].isempty()
-    
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
         
@@ -67,7 +64,7 @@ class Board:
                 if squaresMoved == 2: # means we need to set the enPas square
                     self.constants.enPas = (5, final.col) if piece.color == "white" else (2, final.col)
             
-            if diff != 0 and en_passant_empty:
+            if diff != 0: # if there's a difference in col by pawn moves definitily its an capture or enPas
                 
                 self.squares[initial.row][initial.col + diff].piece = None
                 self.squares[final.row][final.col].piece = piece
@@ -123,16 +120,6 @@ class Board:
             
     def castling(self,initial, final):
         return abs(initial.col - final.col) == 2 # if the king moved by 2 squares
-    
-    def set_true_en_passsant(self, piece):
-        if not isinstance(piece, Pawn):
-            return 
-        for row in range(ROWS):
-            for col in range(COLS):
-                if isinstance(self.squares[row][col].piece, Pawn):
-                    self.squares[row][col].piece.en_passant = False
-                    
-        piece.en_passant = True
             
     def in_check(self,piece, move, opp = False): # checks if after moving the piece my king is in check or not
         temp_piece = copy.deepcopy(piece)
@@ -205,47 +192,22 @@ class Board:
                         else:
                             piece.add_move(move)
                                 
-        
-            # en passant moves
-            r = 3 if piece.color == 'white' else 4
-            fr = 2 if piece.color == 'white' else 5
-            
-            # left en_passant
-            if Square.in_range(col-1) and row == r:
-                if self.squares[row][col-1].has_rival_piece(piece.color):
-                    p = self.squares[row][col-1].piece
-                    if isinstance(p, Pawn):
-                        if p.en_passant:
-                            initial = Square(row, col)
-                            final_piece = self.squares[row][col-1].piece
-                            final = Square(fr, col-1, final_piece)
-                            
-                            move = Move(initial, final)
-                            
-                            if wannaCheck:
-                                if not self.in_check(piece, move):
-                                    piece.add_move(move)
-                            else:
-                                piece.add_move(move)
-                                
-            # right en_passant
-            if Square.in_range(col+1) and row == r:
-                if self.squares[row][col+1].has_rival_piece(piece.color):
-                    p = self.squares[row][col+1].piece
-                    if isinstance(p, Pawn):
-                        if p.en_passant:
-                            initial = Square(row, col)
-                            final_piece = self.squares[row][col+1].piece
-                            final = Square(fr, col+1, final_piece)
-                            
-                            move = Move(initial, final)
-                            
-                            if wannaCheck:
-                                if not self.in_check(piece, move):
-                                    piece.add_move(move)
-                            else:
-                                piece.add_move(move)
-                                
+            if(self.constants.enPas):
+                enPas_row, enPas_col = self.constants.enPas
+                direction = -1 if piece.color == "white" else 1
+                if (row+direction == enPas_row and col+1 == enPas_col) or (row+direction == enPas_row and col-1 == enPas_col): # enpas move
+                    initial = Square(row, col)
+                    final_piece = self.squares[enPas_row][enPas_col].piece
+                    final = Square(enPas_row, enPas_col, final_piece)
+                    
+                    move = Move(initial, final)
+                    
+                    if wannaCheck:
+                        if not self.in_check(piece, move):
+                            piece.add_move(move)
+                    else:
+                        piece.add_move(move)
+                
         
         def knight_moves():
             # 8 possible moves

@@ -47,3 +47,12 @@ class Square:
         
         return ALPHACOLS[col]
     
+    @staticmethod 
+    def parseSquare(square):
+        file = square[0]
+        rank = square[1]
+        
+        row = 8 - rank
+        col = ord(file) - ord('a')
+        return row,col
+    

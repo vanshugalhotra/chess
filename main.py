@@ -29,8 +29,6 @@ class Main:
             game.show_pieces(screen)
             game.show_hover(screen)
             
-            print(board.getFEN())
-            
             if dragger.dragging:
                 dragger.update_blit(screen)
                 
@@ -102,7 +100,6 @@ class Main:
                                 
                                 board.move(dragger.piece, move)
                                 
-                                board.set_true_en_passsant(dragger.piece)
                                 # play sound
                                 game.play_sound(captured)
                                 
