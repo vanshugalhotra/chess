@@ -29,6 +29,8 @@ class Main:
             game.show_pieces(screen)
             game.show_hover(screen)
             
+            print(board.getFEN())
+            
             if dragger.dragging:
                 dragger.update_blit(screen)
                 
@@ -50,7 +52,7 @@ class Main:
                             piece = board.squares[clicked_row][clicked_col].piece
                             
                             # valid piece color?
-                            if piece.color == game.next_player:
+                            if piece.color == game.constants.next_player:
                                 board.calc_moves(piece, clicked_row, clicked_col, wannaCheck=True)
                                 dragger.save_initial(event.pos)
                                 dragger.drag_piece(piece)

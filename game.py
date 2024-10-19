@@ -8,9 +8,9 @@ from piece import Piece
 class Game:
     
     def __init__(self):
-        self.next_player = "white"
         self.hovered_sqr = None
-        self.board = Board()
+        self.constants = Constants()
+        self.board = Board(self.constants)
         self.dragger = Dragger()
         self.config = Config()
         
@@ -48,8 +48,6 @@ class Game:
                     #blit
                     surface.blit(lbl, lbl_pos)
                     
-                
-            
     def show_pieces(self, surface):
         for row in range(ROWS):
             for col in range(COLS):
@@ -100,7 +98,7 @@ class Game:
             #color
             color = CHECKMATE if Board.checkmate else CHECK
             # rect
-            if(self.next_player == "white"):
+            if(self.constants.next_player == "white"):
                 row, col = Piece.KingSquares[0]
             else:
                 row, col = Piece.KingSquares[1]
@@ -147,7 +145,8 @@ class Game:
     # other methods
     
     def next_turn(self):
-        self.next_player = "white" if self.next_player == "black" else "black"
+        self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
+        self.constants.ply += 1
         
     def set_hover(self, row, col):
         if Square.in_range(row, col):

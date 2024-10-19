@@ -27,6 +27,12 @@ class Square:
     
     def isempty_or_rival(self, color):
         return self.isempty() or self.has_rival_piece(color)
+    
+    def get_notation(self):
+        rank = 8 - (self.row)
+        file = chr(ord('a') + self.col)
+        
+        return f'{file}{rank}'
         
     @staticmethod
     def in_range(*args): # not a class method, we can call static method with object

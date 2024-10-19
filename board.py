@@ -8,22 +8,26 @@ import os
 
 class Board:
     checkmate = False
-    def __init__(self):
+    def __init__(self, constants):
         self.squares = [[0 for _ in range(ROWS)] for _ in range(COLS)]
         self._create()
         
+        self.constants = constants
         self._add_pieces('black')
         self._add_pieces('white')
         self.last_move = None
-        
+        self.castlePerms = "KQkq"
         
     def move(self, piece, move, testing=False):
         initial = move.initial
-        final = move.final        
+        final = move.final   
         
-                
-        # # checking if is in Check
-        if not testing:
+        self.constants.enPas = None     
+            
+        if not testing: # if an actual move is made
+            self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
+            
+            # if king is in check
             Piece.KingInCheck = self.in_check(piece,move,opp=True)
             # checking for checkmate
             if(Piece.KingInCheck):
@@ -41,14 +45,28 @@ class Board:
 
                 Board.checkmate = False if possibleMoves else True
                 
+            # checking if it was a capture move
+            if(self.squares[final.row][final.col].has_rival_piece(piece.color)):
+                self.constants.fiftyMove = 0 # resetting fiftyMove if we made a capture
+            
+            
         en_passant_empty = self.squares[final.row][final.col].isempty()
-        
+    
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
         
         
         if isinstance(piece, Pawn):
             diff = final.col - initial.col
+
+            squaresMoved = abs(final.row - initial.row)
+            
+            if not testing: # if it was a pawn move we reset the fiftyMove counter
+                self.constants.fiftyMove = 0
+            
+                if squaresMoved == 2: # means we need to set the enPas square
+                    self.constants.enPas = (5, final.col) if piece.color == "white" else (2, final.col)
+            
             if diff != 0 and en_passant_empty:
                 
                 self.squares[initial.row][initial.col + diff].piece = None
@@ -71,15 +89,30 @@ class Board:
             if not testing:
                 if piece.color == "white":
                     Piece.KingSquares[0] = (move.final.row, move.final.col)
+                    # updating castle permission is white king moved
+                    self.castlePerms = "--" + self.castlePerms[2:]
                 else:
                     Piece.KingSquares[1] = (move.final.row, move.final.col)
-                        
+                    # updating castle permission is black king moved
+                    self.castlePerms = self.castlePerms[0:2] + "--"
+        
+        if isinstance(piece, Rook): # if a rook is moved
+            if not testing: # acutally a move is made
+                # updating castle permissions
+                if move.initial.row == 0 and move.initial.col == 0: # black rook of queen side
+                    self.castlePerms = self.castlePerms[0:3] + "-" # black king can't castle queen side
+                elif move.initial.row == 0 and move.initial.col == 7: # black rook of king side
+                    self.castlePerms = self.castlePerms[0:2] + "-" + self.castlePerms[3] # black king can't castle king side
+                elif move.initial.row == 7 and move.initial.col == 0: # white rook of queen side
+                    self.castlePerms = self.castlePerms[0] + "-" + self.castlePerms[2:] # white king can't castle queen side
+                elif move.initial.row == 7 and move.initial.col == 7: # white rook of king side
+                    self.castlePerms = "-" + self.castlePerms[1:] # white king can't castle king side
+            
         piece.moved = True
         
         # clear valid moves
         piece.clear_moves()
         self.last_move = move  
-
         
     def valid_move(self, piece, move):
         return move in piece.moves
@@ -431,6 +464,38 @@ class Board:
         elif isinstance(piece, King):
             king_moves()
         
+    def getFEN(self):
+        fen = ""
+        for r in range(ROWS):
+            space = 0
+            for c in range(COLS):
+                pc = copy.deepcopy(self.squares[r][c].piece)
+                if(pc): # if Piece encounters
+                    if(space):
+                        fen += str(space)
+                        space = 0
+                    fen += pc.get_notation()
+                else: # if square is empty
+                    space+=1
+            if(space):
+                fen += str(space)
+                space = 0
+            if(r != 7):
+                fen += '/'
+            
+        fen += f' {self.constants.next_player[0]} '
+        fen += self.castlePerms
+        if self.constants.enPas:
+            enpas = Square(self.constants.enPas[0], self.constants.enPas[1])
+            fen += f' {enpas.get_notation()}'
+        else:
+            fen += ' -'
+            
+        fen += f' {str(self.constants.fiftyMove)}'
+        fen += f' {str(self.constants.ply // 2 + self.constants.ply % 2)}'
+        
+        return fen
+        
     # starting with _ represents them as private methods
     def _create(self):
         
@@ -462,4 +527,5 @@ class Board:
         
         # King
         self.squares[row_other][4] = Square(row_other, 4, King(color))
+    
     

@@ -14,9 +14,18 @@ CHECKMATE = '#ff4500'
 CHECK = '#dc143c'
 MESSAGE = '#dc143c'
 
+class Constants:
+    def __init__(self):
+        self.next_player = "white"
+        self.ply = 1 # no of half moves
+        self.fiftyMove = 0
+        self.enPas = None # enPas square
+
+
 # ! need to refactor - in check
 
 # todo: Check Effect  ✅
 # todo: Checkmate ✅
+# todo: Stalemate
 # todo: FEN Parser
 # todo: UCI Protocol
