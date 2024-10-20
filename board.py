@@ -23,7 +23,7 @@ class Board:
         final = move.final   
         
         self.constants.enPas = None     
-            
+        
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
             
@@ -51,7 +51,6 @@ class Board:
             
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
-        
         
         if isinstance(piece, Pawn):
             diff = final.col - initial.col
@@ -490,4 +489,12 @@ class Board:
         # King
         self.squares[row_other][4] = Square(row_other, 4, King(color))
     
-    
+    def _print_board(self):
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_piece():
+                    print(self.squares[row][col].piece.get_notation(), end=" ")
+                else:
+                    print('.', end=" ")
+                    
+            print()

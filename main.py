@@ -5,6 +5,17 @@ from game import Game
 from square import Square
 from move import Move
 from board import Board
+from engine import constants, uci, init, pvtable
+import copy
+
+import traceback
+
+log_file = open('error.log', 'w')
+# original_stdout = sys.stdout
+original_stderr = sys.stderr
+
+# sys.stdout = log_file
+sys.stderr = log_file
 
 class Main: 
     def __init__(self):
@@ -14,6 +25,11 @@ class Main:
         self.game = Game()
         self.screen.fill(BACKGROUND)  # Fill the background with a dim white color
 
+        self.engine_board = constants.Board()
+        self.engine_info = constants.SEARCHINFO()
+        
+        init.AllInit()
+        pvtable.InitPvTable(self.engine_board.PvTable)
     
     def mainloop(self):
         
@@ -157,14 +173,44 @@ class Main:
                         pygame.quit()
                         sys.exit()
                 
-                
+                if(game.current_player == game.black):
+                    self.move_engine()
+                    # break        
+                    
                 pygame.display.update()
                 clock.tick(60)
             
             except Exception as e:
-                print(e.args)
+                traceback.print_exc(file=sys.stderr)
         
-
+      
+    def move_engine(self):
+        currentFen = self.game.board.getFEN()
+        command = f'position fen {currentFen}'
+        
+        uci.ParsePosition(command, self.engine_board)
+        
+        # command = f'go wtime 320000 btime 300000 winc 20000 binc 20000'
+        command = f'go depth 5 movetime 10000'
+        print(command)
+        bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
+        
+        initial_row, initial_col = Square.parseSquare(bestMove[0:2])
+        final_row, final_col = Square.parseSquare(bestMove[2:])
+        
+        
+        # create new move
+        initial = Square(initial_row, initial_col)
+        final_piece = self.game.board.squares[final_row][final_col].piece
+        final = Square(final_row, final_col, final_piece)
+        
+        move = Move(initial, final)
+        piece = copy.deepcopy(self.game.board.squares[initial_row][initial_col].piece)
+        self.game.board.move(piece, move)
+        self.game.next_turn()
 
 main = Main()
 main.mainloop()
+
+sys.stderr = original_stderr
+log_file.close()

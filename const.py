@@ -36,3 +36,4 @@ class Constants:
 # todo: UCI Protocol
 # todo : MENU BAR
 # todo: promotion bug fix
+# todo: fiftyMove and 3 rep

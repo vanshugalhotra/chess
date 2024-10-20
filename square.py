@@ -50,7 +50,7 @@ class Square:
     @staticmethod 
     def parseSquare(square):
         file = square[0]
-        rank = square[1]
+        rank = int(square[1])
         
         row = 8 - rank
         col = ord(file) - ord('a')

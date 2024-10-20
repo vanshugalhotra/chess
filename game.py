@@ -62,7 +62,6 @@ class Game:
                 # piece ?
                 if self.board.squares[row][col].has_piece(): # if we have a piece on a particular square
                     piece = self.board.squares[row][col].piece
-                    
                     # all pieces except the dragging one
                     if piece is not self.dragger.piece:
                         piece.set_texture(size=80)
@@ -261,7 +260,6 @@ class Game:
         # switch players
         self.current_player = self.black if self.current_player == self.white else self.white
         
-         
         self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
         self.constants.ply += 1
         
