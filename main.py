@@ -139,15 +139,15 @@ class Main:
                                     
                                     # play sound
                                     game.play_sound(captured)
-                                    
                                     # draw or show methods
                                     game.show_bg(screen)
                                     game.show_last_move(screen)
                                     game.show_check(screen)
                                     game.show_pieces(screen)
-                                    
+                                                                        
                                     # change the turn
                                     game.next_turn()
+                                    
                                 
                                 else: # if just picked it and not moved
                                     dragger.piece.clear_moves()
@@ -174,8 +174,15 @@ class Main:
                         sys.exit()
                 
                 if(game.current_player == game.black):
+                    # draw or show methods
+                    game.show_bg(screen)
+                    game.show_last_move(screen)
+                    game.show_check(screen)
+                    game.show_pieces(screen)
+                    pygame.display.update()
+                    clock.tick(60)
+                    
                     self.move_engine()
-                    # break        
                     
                 pygame.display.update()
                 clock.tick(60)
