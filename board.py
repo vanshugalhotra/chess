@@ -21,9 +21,7 @@ class Board:
     def move(self, piece, move, testing=False):
         initial = move.initial
         final = move.final   
-        
-        self.constants.enPas = None     
-        
+                
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
             
@@ -64,9 +62,10 @@ class Board:
                     self.constants.enPas = (5, final.col) if piece.color == "white" else (2, final.col)
             
             if diff != 0: # if there's a difference in col by pawn moves definitily its an capture or enPas
-                
-                self.squares[initial.row][initial.col + diff].piece = None
+                cap_row = final.row if self.constants.enPas is None else initial.row
+                self.squares[cap_row][initial.col + diff].piece = None
                 self.squares[final.row][final.col].piece = piece
+                self.constants.enPas = None # resetting the enPas 
                 
                 if not testing:
                     sound = Sound(os.path.join('assets/sounds/capture.wav'))
@@ -75,6 +74,8 @@ class Board:
             else:
                 self.check_promotion(piece, final)
             
+        else:
+            self.constants.enPas = None # resetting the enPas 
         if isinstance(piece, King):
             if self.castling(initial, final) and not testing: # castling
                 diff = final.col - initial.col
