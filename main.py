@@ -7,6 +7,7 @@ from move import Move
 from board import Board
 from engine import constants, uci, init, pvtable
 import copy
+import time
 
 import traceback
 
@@ -171,6 +172,15 @@ class Main:
                         # key pressed "m"
                         if event.key == pygame.K_m:
                             self.game.engine_mode = not self.game.engine_mode
+                            self.game.black = self.game.engine if self.game.engine_mode else self.game.player2
+                            self.game.current_player = self.game.white if self.game.current_player == self.game.white else self.game.black
+                            game.display_message(screen, "Changed Mode!!!")
+                            continue
+                        
+                        # key pressed "p"
+                        if event.key == pygame.K_p:
+                            self.game.start = True
+                            game.display_message(screen, "Play!!")
                     
                     # quit
                     elif event.type == pygame.QUIT:
@@ -182,7 +192,7 @@ class Main:
                     game.show_bg(screen)
                     game.show_last_move(screen)
                     game.show_check(screen)
-                    game.show_pieces(screen)
+                    game.show_pieces(screen) 
                     pygame.display.update()
                     clock.tick(60)
                     

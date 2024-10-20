@@ -16,11 +16,14 @@ class Game:
         self.board = Board(self.constants)
         self.dragger = Dragger()
         self.config = Config()
+        
         self.start = False
-        self.white = Player("Vanshu Galhotra", "me.png")
-        self.black = Player("Ustaad Ji", "ustaad.png")
         self.engine_mode = False
         
+        self.white = Player("Vanshu Galhotra", "me.png")
+        self.player2 = Player("Prem Pal", "prem.png")
+        self.black = self.player2
+        self.engine = Player("Ustaad Ji", "ustaad.png")
         self.current_player = self.white
         
     # render methods
@@ -149,6 +152,7 @@ class Game:
 
             # Draw the msg itself
             screen.blit(msg, msg_rect)
+            
     
     def show_rightSide(self, surface):
         padding_left = 20
