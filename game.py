@@ -19,6 +19,7 @@ class Game:
         self.start = False
         self.white = Player("Vanshu Galhotra", "me.png")
         self.black = Player("Ustaad Ji", "ustaad.png")
+        self.engine_mode = False
         
         self.current_player = self.white
         

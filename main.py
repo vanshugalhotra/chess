@@ -167,13 +167,17 @@ class Main:
                             game = self.game
                             board = self.game.board
                             dragger = self.game.dragger
+                            
+                        # key pressed "m"
+                        if event.key == pygame.K_m:
+                            self.game.engine_mode = not self.game.engine_mode
                     
                     # quit
                     elif event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
                 
-                if(game.current_player == game.black):
+                if(game.current_player == game.black and self.game.engine_mode):
                     # draw or show methods
                     game.show_bg(screen)
                     game.show_last_move(screen)
@@ -198,7 +202,7 @@ class Main:
         uci.ParsePosition(command, self.engine_board)
         
         # command = f'go wtime 320000 btime 300000 winc 20000 binc 20000'
-        command = f'go depth 5 movetime 10000'
+        command = f'go depth 6 movetime 8000'
         print(command)
         bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
         

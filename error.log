@@ -2,3 +2,7 @@ Traceback (most recent call last):
   File "e:\All Codes\Python\chess-gui\main.py", line 86, in mainloop
     if board.squares[clicked_row][clicked_col].has_piece():
 IndexError: list index out of range
+Traceback (most recent call last):
+  File "e:\All Codes\Python\chess-gui\main.py", line 86, in mainloop
+    if board.squares[clicked_row][clicked_col].has_piece():
+IndexError: list index out of range
