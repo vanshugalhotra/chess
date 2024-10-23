@@ -36,4 +36,6 @@ class Constants:
 # todo: UCI Protocol
 # todo : MENU BAR
 # todo: promotion bug fix
+# todo: take back moves
 # todo: fiftyMove and 3 rep
+# todo: bug fix in engine (makemove -> clearPiece)

@@ -1,7 +1,8 @@
 import traceback
 import sys
 
-DEBUG = False
+DEBUG = True
+CHECKBOARD_DEBUG = False
 
 def assert_condition(condition, message="Assertion failed"):
     if(not DEBUG):

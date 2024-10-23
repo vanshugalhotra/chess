@@ -20,10 +20,12 @@ class Game:
         self.start = False
         self.engine_mode = False
         
-        self.white = Player("Vanshu Galhotra", "me.png")
-        self.player2 = Player("Prem Pal", "prem.png")
+        initial_time = 30
+        
+        self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
+        self.player2 = Player("Prem Pal", "prem.png", initial_time=initial_time)
         self.black = self.player2
-        self.engine = Player("Ustaad Ji", "ustaad.png")
+        self.engine = Player("Ustaad Ji", "ustaad.png", initial_time=initial_time)
         self.current_player = self.white
         
     # render methods
@@ -261,9 +263,39 @@ class Game:
         
     # other methods
     
+    def toggle_engine_mode(self):
+        self.engine_mode = not self.engine_mode
+         
+        # stop current black players timer
+        if self.current_player != self.white:
+            self.black.stop_timer()
+        
+        if self.engine_mode:
+            self.engine.time = self.player2.time
+            self.black = self.engine
+        else:
+            self.player2.time = self.engine.time
+            self.black = self.player2
+        
+        # update current Player
+        self.current_player = self.white if self.current_player == self.white else self.black
+        
+        if self.current_player != self.white:
+            self.black.start_timer()
+        
+    
+    def start_game(self):
+        self.start = True
+        self.current_player.start_timer()
+    
     def next_turn(self):       
         # switch players
+        
+        self.current_player.stop_timer()
+        
         self.current_player = self.black if self.current_player == self.white else self.white
+        
+        self.current_player.start_timer()
         
         self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
         self.constants.ply += 1

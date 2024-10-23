@@ -3,7 +3,7 @@ from .bitboards import CountBits, PopBit
 from .globals import Sq64ToSq120, RanksBrd, FilesBrd
 from .data import PieceBig, PieceMaj, PieceMin, PieceCol, PieceVal
 from .hashkeys import GeneratePosKey
-from .debug import assert_condition, DEBUG
+from .debug import assert_condition, DEBUG, CHECKBOARD_DEBUG
 
 def SqOnBoard(sq):
     return 0 if FilesBrd[sq] == SQUARES.OFFBOARD.value else 1
@@ -22,7 +22,7 @@ def PieceValid(pce):
 
 
 def CheckBoard(board):
-    if(not DEBUG):
+    if(not CHECKBOARD_DEBUG):
         return True
     
     t_pceNum = [0,0,0,0,0,0,0,0,0,0,0,0,0]

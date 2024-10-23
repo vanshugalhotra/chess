@@ -59,6 +59,9 @@ class Main:
                     
                 if Board.checkmate:
                     game.display_message(screen, "Checkmate!!")
+                    
+                if self.game.current_player.time <= 0:
+                    game.display_message(screen, "Timeout!!")
                 
                 # event handling
                 for event in pygame.event.get():
@@ -72,7 +75,7 @@ class Main:
                                 mouse_pos = pygame.mouse.get_pos()
                                 # Check if the button was clicked
                                 if play_button.collidepoint(mouse_pos):
-                                    game.start = True  # Set start to True when clicked
+                                    game.start_game() # Set start to True when clicked
                                 
                             
                             if not game.start: # till game is started
@@ -171,16 +174,14 @@ class Main:
                             
                         # key pressed "m"
                         if event.key == pygame.K_m:
-                            self.game.engine_mode = not self.game.engine_mode
-                            self.game.black = self.game.engine if self.game.engine_mode else self.game.player2
-                            self.game.current_player = self.game.white if self.game.current_player == self.game.white else self.game.black
+                            game.toggle_engine_mode()
                             game.display_message(screen, "Changed Mode!!!")
                             continue
                         
                         # key pressed "p"
                         if event.key == pygame.K_p:
-                            self.game.start = True
                             game.display_message(screen, "Play!!")
+                            self.game.start_game()
                     
                     # quit
                     elif event.type == pygame.QUIT:
@@ -212,7 +213,14 @@ class Main:
         uci.ParsePosition(command, self.engine_board)
         
         # command = f'go wtime 320000 btime 300000 winc 20000 binc 20000'
-        command = f'go depth 6 movetime 8000'
+        depth = 6
+        if self.game.constants.ply < 10:
+            depth = 5
+        elif self.game.constants.ply >= 10 and self.game.constants.ply <= 70:
+            depth = 6
+        else:
+            depth = 8
+        command = f'go depth {depth} movetime 10000'
         print(command)
         bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
         
