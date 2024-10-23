@@ -20,7 +20,7 @@ class Game:
         self.start = False
         self.engine_mode = False
         
-        initial_time = 300
+        initial_time = 600
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
         self.player2 = Player("Prem Pal", "prem.png", initial_time=initial_time)
@@ -290,7 +290,6 @@ class Game:
     
     def next_turn(self):       
         # switch players
-        
         self.current_player.stop_timer()
         
         self.current_player = self.black if self.current_player == self.white else self.white

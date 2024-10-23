@@ -55,7 +55,9 @@ class Board:
 
             squaresMoved = abs(final.row - initial.row)
             
+            
             if not testing: # if it was a pawn move we reset the fiftyMove counter
+                self.constants.enPas = None if diff == 0 else self.constants.enPas
                 self.constants.fiftyMove = 0
             
                 if squaresMoved == 2: # means we need to set the enPas square
