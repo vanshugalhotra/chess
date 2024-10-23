@@ -59,10 +59,12 @@ class Main:
                     dragger.update_blit(screen)
                     
                 if Board.checkmate:
+                    self.game.winner = self.game.current_player
                     game.display_message(screen, "Checkmate!!")
                     game.current_player.stop_timer()
                     
                 if self.game.current_player.time <= 0:
+                    self.game.winner = self.game.black if self.game.current_player == self.game.black else self.game.white
                     game.display_message(screen, "Timeout!!")
                 
                 # event handling
@@ -218,7 +220,7 @@ class Main:
         depth = 6
         if self.game.constants.ply < 10:
             depth = 5
-        elif self.game.constants.ply >= 10 and self.game.constants.ply <= 70:
+        elif self.game.constants.ply >= 10 and self.game.constants.ply <= 60:
             depth = 6
         else:
             depth = 8

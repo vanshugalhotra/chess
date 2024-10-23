@@ -31,11 +31,14 @@ class Constants:
 # todo: Check Effect  ✅
 # todo: Checkmate ✅
 # todo: Stalemate
-# todo: Clock and move list
+# todo: Clock ✅
+# todo: move list
+# todo: winner banner ✅
 # todo: FEN Parser
 # todo: UCI Protocol
 # todo : MENU BAR
 # todo: promotion bug fix
 # todo: take back moves
 # todo: fiftyMove and 3 rep
-# todo: bug fix in engine (makemove -> clearPiece)
+# todo: bug fix in engine (makemove -> clearPiece) ✅
+# todo: bug fix: clock time for engine

@@ -20,13 +20,15 @@ class Game:
         self.start = False
         self.engine_mode = False
         
-        initial_time = 600
+        initial_time = 30
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
         self.player2 = Player("Prem Pal", "prem.png", initial_time=initial_time)
         self.black = self.player2
         self.engine = Player("Ustaad Ji", "ustaad.png", initial_time=initial_time)
         self.current_player = self.white
+        
+        self.winner = None
         
     # render methods
     
@@ -155,7 +157,6 @@ class Game:
             # Draw the msg itself
             screen.blit(msg, msg_rect)
             
-    
     def show_rightSide(self, surface):
         padding_left = 20
         card_width = 180 
@@ -252,6 +253,26 @@ class Game:
 
             surface.blit(clock_surface, clock_surface_rect)
 
+        def draw_winner_banner(player, pos_x, pos_y):
+            banner_width = card_width
+            banner_height = 40
+            banner_color = '#f39c12'
+            banner_text_color = '#ffffff'
+            banner_font = pygame.font.SysFont('Arial', 24, bold=True)
+
+            # Banner position (directly below the player's card)
+            banner_x = pos_x
+            banner_y = pos_y + card_height + 10  # Adjust the Y position slightly below the card
+
+            # Draw the banner
+            banner_rect = pygame.Rect(banner_x, banner_y, banner_width, banner_height)
+            pygame.draw.rect(surface, banner_color, banner_rect, border_radius=8)
+
+            # Render and display the banner text
+            banner_text = banner_font.render("Winner!", True, banner_text_color)
+            banner_text_rect = banner_text.get_rect(center=(banner_x + banner_width // 2, banner_y + banner_height // 2))
+            surface.blit(banner_text, banner_text_rect)
+
         clock_pos_player1 = (pos_x1 + card_width - 20, pos_y1 + 10) 
         draw_player_card(self.white, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
         
@@ -259,6 +280,13 @@ class Game:
         draw_player_card(self.black, pos_x2, pos_y1, clock_pos_player2, (30, 30, 30), (255, 255, 255), align='left') 
         
         button_rect = draw_start_button()
+        
+        if self.winner == self.white:
+            draw_winner_banner(self.white, pos_x2, pos_y1)
+        
+        elif self.winner == self.black:
+            draw_winner_banner(self.black, pos_x1, pos_y1)
+        
         return button_rect
         
     # other methods
