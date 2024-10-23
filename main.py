@@ -21,10 +21,10 @@ sys.stderr = log_file
 class Main: 
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH+WIDTH_OFFSET, HEIGHT+HEIGHT_OFFSET))
+        self.screen = pygame.display.set_mode((WIDTH+WIDTH_OFFSET, HEIGHT+HEIGHT_OFFSET), pygame.DOUBLEBUF)
         pygame.display.set_caption("ਉਸਤਾਦ ਜੀ")
         self.game = Game()
-        self.screen.fill(BACKGROUND)  # Fill the background with a dim white color
+        self.screen.fill(BACKGROUND)  
 
         self.engine_board = constants.Board()
         self.engine_info = constants.SEARCHINFO()
@@ -44,7 +44,7 @@ class Main:
         while True:
             
             try:
-                self.screen.fill(BACKGROUND)  # Fill the background with a dim white color
+                self.screen.fill(BACKGROUND)  
                 game.show_bg(screen)
                 game.show_last_move(screen)
                 game.show_check(screen)
@@ -59,6 +59,7 @@ class Main:
                     
                 if Board.checkmate:
                     game.display_message(screen, "Checkmate!!")
+                    game.current_player.stop_timer()
                     
                 if self.game.current_player.time <= 0:
                     game.display_message(screen, "Timeout!!")
@@ -220,7 +221,12 @@ class Main:
             depth = 6
         else:
             depth = 8
-        command = f'go depth {depth} movetime 10000'
+            
+        wtime = self.game.white.time * 1000
+        btime = self.game.black.time * 1000
+        movestogo = 30
+        
+        command = f'go depth {depth} wtime {wtime} btime {btime} movestogo {movestogo}'
         print(command)
         bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
         

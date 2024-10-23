@@ -21,12 +21,14 @@ class Player:
     def stop_timer(self):
         self.running = False
         if self.timer_thread is not None:
-            self.timer_thread.join()
+            # self.timer_thread.join()
+            pass
             
     def update_timer(self):
         while self.running and self.time > 0:
-            time.sleep(1)
-            self.time -= 1
+            update_time = 1
+            time.sleep(update_time)
+            self.time -= update_time
             
             if self.time <= 0:
                 self.running = False

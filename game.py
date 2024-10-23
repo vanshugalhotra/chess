@@ -20,7 +20,7 @@ class Game:
         self.start = False
         self.engine_mode = False
         
-        initial_time = 30
+        initial_time = 300
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
         self.player2 = Player("Prem Pal", "prem.png", initial_time=initial_time)
