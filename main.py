@@ -8,6 +8,7 @@ from board import Board
 from engine import constants, uci, init, pvtable
 import copy
 import time
+from piece import *
 
 import traceback
 
@@ -229,10 +230,10 @@ class Main:
         command = f'go depth {depth} wtime {wtime} btime {btime} movestogo {movestogo}'
         print(command)
         bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
+        # bestMove = "e8g8"
         
         initial_row, initial_col = Square.parseSquare(bestMove[0:2])
         final_row, final_col = Square.parseSquare(bestMove[2:])
-        
         
         # create new move
         initial = Square(initial_row, initial_col)
@@ -240,7 +241,11 @@ class Main:
         final = Square(final_row, final_col, final_piece)
         
         move = Move(initial, final)
+        
         piece = copy.deepcopy(self.game.board.squares[initial_row][initial_col].piece)
+        
+        self.game.board.calc_moves(piece, initial_row, initial_col)
+        
         self.game.board.move(piece, move)
         self.game.next_turn()
 

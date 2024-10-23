@@ -290,6 +290,7 @@ class Game:
     
     def next_turn(self):       
         # switch players
+        
         self.current_player.stop_timer()
         
         self.current_player = self.black if self.current_player == self.white else self.white
@@ -298,6 +299,8 @@ class Game:
         
         self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
         self.constants.ply += 1
+        
+        currentFen = self.board.getFEN()
         
     def set_hover(self, row, col):
         if Square.in_range(row, col):

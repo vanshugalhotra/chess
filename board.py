@@ -78,6 +78,7 @@ class Board:
             
         else:
             self.constants.enPas = None # resetting the enPas 
+            
         if isinstance(piece, King):
             if self.castling(initial, final) and not testing: # castling
                 diff = final.col - initial.col
