@@ -24,7 +24,7 @@ class Board:
         initial = move.initial
         final = move.final   
         
-        r = 1 if piece.color == "white" else 0
+        mr = 1 if piece.color == "white" else 0
         
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
@@ -51,7 +51,7 @@ class Board:
             if(self.squares[final.row][final.col].has_rival_piece(piece.color)):
                 self.constants.fiftyMove = 0 # resetting fiftyMove if we made a capture
                 # updating the material
-                self.material[r] -= self.squares[final.row][final.col].piece.value
+                self.material[mr] -= self.squares[final.row][final.col].piece.value
                     
             
         self.squares[initial.row][initial.col].piece = None
