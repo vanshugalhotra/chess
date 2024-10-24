@@ -37,8 +37,10 @@ class Constants:
 # todo: FEN Parser
 # todo: UCI Protocol
 # todo : MENU BAR
+# todo: flipping sides
 # todo: promotion bug fix
 # todo: take back moves
+# todo: material count
 # todo: fiftyMove and 3 rep
 # todo: bug fix in engine (makemove -> clearPiece) ✅
 # todo: bug fix: clock time for engine

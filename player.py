@@ -12,7 +12,6 @@ class Player:
         self.timer_thread = None
         self.running = False
             
-            
     def start_timer(self):
         self.running = True
         self.timer_thread = threading.Thread(target=self.update_timer)

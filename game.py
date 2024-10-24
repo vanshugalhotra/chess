@@ -20,7 +20,7 @@ class Game:
         self.start = False
         self.engine_mode = False
         
-        initial_time = 30
+        initial_time = 600
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
         self.player2 = Player("Prem Pal", "prem.png", initial_time=initial_time)
@@ -327,8 +327,6 @@ class Game:
         
         self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
         self.constants.ply += 1
-        
-        currentFen = self.board.getFEN()
         
     def set_hover(self, row, col):
         if Square.in_range(row, col):

@@ -18,10 +18,14 @@ class Board:
         self.last_move = None
         self.castlePerms = "KQkq"
         
+        self.material = [39, 39] # white, black
+        
     def move(self, piece, move, testing=False):
         initial = move.initial
         final = move.final   
-                
+        
+        r = 1 if piece.color == "white" else 0
+        
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
             
@@ -46,6 +50,9 @@ class Board:
             # checking if it was a capture move
             if(self.squares[final.row][final.col].has_rival_piece(piece.color)):
                 self.constants.fiftyMove = 0 # resetting fiftyMove if we made a capture
+                # updating the material
+                self.material[r] -= self.squares[final.row][final.col].piece.value
+                    
             
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
@@ -54,7 +61,6 @@ class Board:
             diff = final.col - initial.col
 
             squaresMoved = abs(final.row - initial.row)
-            
             
             if not testing: # if it was a pawn move we reset the fiftyMove counter
                 self.constants.enPas = None if diff == 0 else self.constants.enPas
@@ -65,16 +71,21 @@ class Board:
             
             if diff != 0: # if there's a difference in col by pawn moves definitily its an capture or enPas
                 cap_row = final.row if self.constants.enPas is None else initial.row
+                r = 1 if piece.color == "white" else 0
+                if self.constants.enPas:
+                    self.material[r] -= 1
+
                 self.squares[cap_row][initial.col + diff].piece = None
                 self.squares[final.row][final.col].piece = piece
+                
                 self.constants.enPas = None # resetting the enPas 
                 
                 if not testing:
                     sound = Sound(os.path.join('assets/sounds/capture.wav'))
                     sound.play()
                 
-            else:
-                self.check_promotion(piece, final)
+            
+            self.check_promotion(piece, final)
             
         else:
             self.constants.enPas = None # resetting the enPas 
@@ -118,8 +129,10 @@ class Board:
         return move in piece.moves
     
     def check_promotion(self, piece, final):
+        r = 0 if piece.color == "white" else 1
         if final.row == 0 or final.row == 7:
             self.squares[final.row][final.col].piece = Queen(piece.color)
+            self.material[r] += 9
             
     def castling(self,initial, final):
         return abs(initial.col - final.col) == 2 # if the king moved by 2 squares
@@ -470,7 +483,7 @@ class Board:
     
     def _add_pieces(self, color):
         row_pawn, row_other = (6, 7) if color == "white" else (1, 0)
-        
+        r = 0 if color == "white" else 1
         # pawn
         for col in range(COLS):
             self.squares[row_pawn][col] = Square(row_pawn, col, Pawn(color))
