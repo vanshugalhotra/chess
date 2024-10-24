@@ -273,6 +273,25 @@ class Game:
             banner_text_rect = banner_text.get_rect(center=(banner_x + banner_width // 2, banner_y + banner_height // 2))
             surface.blit(banner_text, banner_text_rect)
 
+        def draw_material_indicator(player_material, pos_x, pos_y):
+            # Small circular indicator to show player advantage
+            indicator_radius = 15
+            indicator_bg_color = (240, 240, 240)  # Light shade of white
+            indicator_text_color = (0, 0, 0)      # Black text
+            circle_x = pos_x + card_width - indicator_radius + 10 # Bottom-right corner of the card
+            circle_y = pos_y + card_height - indicator_radius + 20
+
+            # Draw the circle indicator (background)
+            pygame.draw.circle(surface, indicator_bg_color, (circle_x, circle_y), indicator_radius)
+
+            # Render the player's material inside the indicator
+            font = pygame.font.SysFont('Arial', 18, bold=True)
+            material_txt = f'+{abs(self.board.material[0] - self.board.material[1])}'
+            material_text = font.render(material_txt, True, indicator_text_color)
+            text_rect = material_text.get_rect(center=(circle_x, circle_y))
+            surface.blit(material_text, text_rect)
+
+
         clock_pos_player1 = (pos_x1 + card_width - 20, pos_y1 + 10) 
         draw_player_card(self.white, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
         
@@ -286,6 +305,12 @@ class Game:
         
         elif self.winner == self.black:
             draw_winner_banner(self.black, pos_x1, pos_y1)
+            
+        # Material advantage indicator logic
+        if self.board.material[0] > self.board.material[1]:  # White has more material
+            draw_material_indicator(self.board.material[0], pos_x1, pos_y1)
+        elif self.board.material[1] > self.board.material[0]:  # Black has more material
+            draw_material_indicator(self.board.material[1], pos_x2, pos_y1)
         
         return button_rect
         
