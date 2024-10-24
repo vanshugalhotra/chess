@@ -70,14 +70,18 @@ class Board:
                     self.constants.enPas = (5, final.col) if piece.color == "white" else (2, final.col)
             
             if diff != 0: # if there's a difference in col by pawn moves definitily its an capture or enPas
-                cap_row = final.row if self.constants.enPas is None else initial.row
                 r = 1 if piece.color == "white" else 0
-                if self.constants.enPas:
-                    self.material[r] -= 1
-
-                self.squares[cap_row][initial.col + diff].piece = None
-                self.squares[final.row][final.col].piece = piece
                 
+                # enPas capture
+                if (final.row, final.col) == self.constants.enPas:
+                    self.material[r] -= 1
+                    self.squares[initial.row][final.col].piece = None
+
+                # normal capture
+                else:
+                    self.squares[final.row][final.col].piece = None
+                    
+                self.squares[final.row][final.col].piece = piece
                 self.constants.enPas = None # resetting the enPas 
                 
                 if not testing:
