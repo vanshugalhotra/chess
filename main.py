@@ -9,6 +9,7 @@ from engine import constants, uci, init, pvtable
 import copy
 import time
 from piece import *
+import threading
 
 import traceback
 
@@ -29,7 +30,9 @@ class Main:
 
         self.engine_board = constants.Board()
         self.engine_info = constants.SEARCHINFO()
-        
+
+        self.engine_running = False
+        self.bestMove = None
         init.AllInit()
         pvtable.InitPvTable(self.engine_board.PvTable)
     
@@ -66,7 +69,7 @@ class Main:
                 if self.game.current_player.time <= 0:
                     self.game.winner = self.game.black if self.game.current_player == self.game.black else self.game.white
                     game.display_message(screen, "Timeout!!")
-                
+                                                        
                 # event handling
                 for event in pygame.event.get():
                     
@@ -207,10 +210,34 @@ class Main:
                 clock.tick(60)
             
             except Exception as e:
+                print("Check Error LOG")
                 traceback.print_exc(file=sys.stderr)
         
       
     def move_engine(self):
+        if(self.bestMove):
+            initial_row, initial_col = Square.parseSquare(self.bestMove[0:2])
+            final_row, final_col = Square.parseSquare(self.bestMove[2:])
+            
+            # create new move
+            initial = Square(initial_row, initial_col)
+            final_piece = self.game.board.squares[final_row][final_col].piece
+            final = Square(final_row, final_col, final_piece)
+            
+            
+            move = Move(initial, final)
+            piece = copy.deepcopy(self.game.board.squares[initial_row][initial_col].piece)
+            
+            self.game.board.calc_moves(piece, initial_row, initial_col)
+            self.game.board.move(piece, move)
+            self.bestMove = None # resetting the bestMove
+            self.game.next_turn()
+            self.engine_running = False
+            return 
+
+        if self.engine_running:
+            return
+        
         currentFen = self.game.board.getFEN()
         command = f'position fen {currentFen}'
         
@@ -231,26 +258,14 @@ class Main:
         
         command = f'go depth {depth} wtime {wtime} btime {btime} movestogo {movestogo}'
         print(command)
-        bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
-        # bestMove = "e8g8"
         
-        initial_row, initial_col = Square.parseSquare(bestMove[0:2])
-        final_row, final_col = Square.parseSquare(bestMove[2:])
+        def calculate_best_move():
+            self.bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
         
-        # create new move
-        initial = Square(initial_row, initial_col)
-        final_piece = self.game.board.squares[final_row][final_col].piece
-        final = Square(final_row, final_col, final_piece)
-        
-        move = Move(initial, final)
-        
-        piece = copy.deepcopy(self.game.board.squares[initial_row][initial_col].piece)
-        
-        self.game.board.calc_moves(piece, initial_row, initial_col)
-        
-        self.game.board.move(piece, move)
-        self.game.next_turn()
-
+        bestmove_thread = threading.Thread(target=calculate_best_move)
+        self.engine_running = True
+        bestmove_thread.start()
+            
 main = Main()
 main.mainloop()
 
