@@ -24,12 +24,13 @@ class Constants:
         self.ply = 1 # no of half moves
         self.fiftyMove = 0
         self.enPas = None # enPas square
+        self.history = ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'] 
         
 # ! need to refactor - in check
 
 # todo: Check Effect  ✅
 # todo: Checkmate ✅
-# todo: Stalemate
+# todo: Stalemate bug
 # todo: Clock ✅
 # todo: move list
 # todo: winner banner ✅

@@ -9,6 +9,7 @@ import os
 class Board:
     checkmate = False
     stalemate = False
+    repetition = False
     def __init__(self, constants):
         self.squares = [[0 for _ in range(ROWS)] for _ in range(COLS)]
         self._create()
@@ -32,6 +33,9 @@ class Board:
             
             if(self.check_stalemate(piece.color)):
                 Board.stalemate = True
+                
+            if(self.is_threefold_repetition()):
+                Board.repetition = True
             
             # if king is in check
             Piece.KingInCheck = self.in_check(piece,move,opp=True)
@@ -177,7 +181,6 @@ class Board:
             end = row + (piece.dir * (1 + steps))
             for move_row in range(start, end, piece.dir):
                 if Square.in_range(move_row):
-                    print(move_row, col, end="  ")
                     if self.squares[move_row][col].isempty():
                         # create a new move
                         initial = Square(row, col)
@@ -483,6 +486,25 @@ class Board:
         
         return fen
         
+        
+    def is_threefold_repetition(self):
+        fen_counts = {}
+
+        for fen in self.constants.history:
+            # Removed halfmove clock and fullmove number
+            fen_key = ' '.join(fen.split(' ')[:4])
+
+            if fen_key in fen_counts:
+                fen_counts[fen_key] += 1
+            else:
+                fen_counts[fen_key] = 1
+
+        # Check if any FEN has occurred three or more times
+        for count in fen_counts.values():
+            if count >= 3:
+                return True
+        return False
+            
     def check_stalemate(self, color):
         for row in range(ROWS):
             for col in range(COLS):

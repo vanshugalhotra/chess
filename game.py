@@ -340,16 +340,18 @@ class Game:
         self.current_player.start_timer()
     
     def next_turn(self):       
-        # switch players
         
         self.current_player.stop_timer()
-        
+        # switch players
         self.current_player = self.black if self.current_player == self.white else self.white
         
         self.current_player.start_timer()
         
         self.constants.next_player = "white" if self.constants.next_player == "black" else "black"
         self.constants.ply += 1
+        
+        current_fen = self.board.getFEN()
+        self.constants.history.append(current_fen)
         
     def set_hover(self, row, col):
         if Square.in_range(row, col):
@@ -363,7 +365,7 @@ class Game:
             self.config.capture_sound.play()
         else:
             self.config.move_sound.play()
-    
+            
     def reset(self):
         self.__init__()
         Board.checkmate = False

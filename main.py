@@ -70,6 +70,10 @@ class Main:
                     game.display_message(screen, "Stalemate!!")
                     game.current_player.stop_timer()
                     
+                if Board.repetition:
+                    game.display_message(screen, "Draw (By Repetition)")
+                    game.current_player.stop_timer()
+                    
                 if self.game.current_player.time <= 0:
                     self.game.winner = self.game.black if self.game.current_player == self.game.black else self.game.white
                     game.display_message(screen, "Timeout!!")
@@ -77,7 +81,7 @@ class Main:
                 # event handling
                 for event in pygame.event.get():
                     
-                    if not Board.checkmate:
+                    if not Board.checkmate and not Board.repetition:
                         # click event
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             
@@ -214,10 +218,9 @@ class Main:
                 clock.tick(60)
             
             except Exception as e:
-                print("Check Error LOG")
                 traceback.print_exc(file=sys.stderr)
-        
-      
+                print("Check Error LOG")
+    
     def move_engine(self):
         if(self.bestMove):
             initial_row, initial_col = Square.parseSquare(self.bestMove[0:2])
