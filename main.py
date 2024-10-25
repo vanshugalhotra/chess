@@ -66,6 +66,10 @@ class Main:
                     game.display_message(screen, "Checkmate!!")
                     game.current_player.stop_timer()
                     
+                if Board.stalemate:
+                    game.display_message(screen, "Stalemate!!")
+                    game.current_player.stop_timer()
+                    
                 if self.game.current_player.time <= 0:
                     self.game.winner = self.game.black if self.game.current_player == self.game.black else self.game.white
                     game.display_message(screen, "Timeout!!")

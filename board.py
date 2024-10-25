@@ -8,6 +8,7 @@ import os
 
 class Board:
     checkmate = False
+    stalemate = False
     def __init__(self, constants):
         self.squares = [[0 for _ in range(ROWS)] for _ in range(COLS)]
         self._create()
@@ -28,6 +29,9 @@ class Board:
         
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
+            
+            if(self.check_stalemate(piece.color)):
+                Board.stalemate = True
             
             # if king is in check
             Piece.KingInCheck = self.in_check(piece,move,opp=True)
@@ -173,6 +177,7 @@ class Board:
             end = row + (piece.dir * (1 + steps))
             for move_row in range(start, end, piece.dir):
                 if Square.in_range(move_row):
+                    print(move_row, col, end="  ")
                     if self.squares[move_row][col].isempty():
                         # create a new move
                         initial = Square(row, col)
@@ -478,6 +483,16 @@ class Board:
         
         return fen
         
+    def check_stalemate(self, color):
+        for row in range(ROWS):
+            for col in range(COLS):
+                if(self.squares[row][col].has_rival_piece(color)):
+                    piece = self.squares[row][col].piece
+                    piece.clear_moves()
+                    self.calc_moves(piece, row, col, wannaCheck=False)
+                    if(len(piece.moves)):
+                        return False
+        return not Board.checkmate
     # starting with _ represents them as private methods
     def _create(self):
         

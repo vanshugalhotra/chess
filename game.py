@@ -291,7 +291,6 @@ class Game:
             text_rect = material_text.get_rect(center=(circle_x, circle_y))
             surface.blit(material_text, text_rect)
 
-
         clock_pos_player1 = (pos_x1 + card_width - 20, pos_y1 + 10) 
         draw_player_card(self.white, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
         
@@ -336,7 +335,6 @@ class Game:
         if self.current_player != self.white:
             self.black.start_timer()
         
-    
     def start_game(self):
         self.start = True
         self.current_player.start_timer()
@@ -369,9 +367,9 @@ class Game:
     def reset(self):
         self.__init__()
         Board.checkmate = False
+        Board.stalemate = False
         Piece.KingInCheck = False
         Piece.KingSquares = [(7, 4), (0, 4)] # white, black
-    
     
     @staticmethod
     def format_time(seconds):

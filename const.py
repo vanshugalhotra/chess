@@ -24,8 +24,7 @@ class Constants:
         self.ply = 1 # no of half moves
         self.fiftyMove = 0
         self.enPas = None # enPas square
-
-
+        
 # ! need to refactor - in check
 
 # todo: Check Effect  ✅
@@ -38,9 +37,9 @@ class Constants:
 # todo: UCI Protocol
 # todo : MENU BAR
 # todo: flipping sides
-# todo: promotion bug fix
+# todo: promotion bug fix ✅
 # todo: take back moves
-# todo: material count
+# todo: material count ✅
 # todo: fiftyMove and 3 rep
 # todo: bug fix in engine (makemove -> clearPiece) ✅
-# todo: bug fix: clock time for engine
+# todo: bug fix: clock time for engine ✅
