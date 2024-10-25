@@ -26,13 +26,20 @@ class Board:
         initial = move.initial
         final = move.final   
         
+        isCapture = False
+        isPromotion = False
+        isCheck = False
+        isCheckMate = False
+        isEnPas = False
+        castle = ""
+        
         mr = 1 if piece.color == "white" else 0
         
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
             
-            if(self.check_stalemate(piece.color)):
-                Board.stalemate = True
+            # if(self.check_stalemate(piece.color)):
+            #     Board.stalemate = True
                 
             if(self.is_threefold_repetition()):
                 Board.repetition = True
@@ -41,6 +48,7 @@ class Board:
             Piece.KingInCheck = self.in_check(piece,move,opp=True)
             # checking for checkmate
             if(Piece.KingInCheck):
+                isCheck = True
                 temp_piece = copy.deepcopy(piece)
                 temp_board = copy.deepcopy(self) # cloning our board
                 
@@ -54,14 +62,15 @@ class Board:
                             possibleMoves += len(p.moves)
 
                 Board.checkmate = False if possibleMoves else True
+                isCheckMate = False if possibleMoves else True
                 
             # checking if it was a capture move
             if(self.squares[final.row][final.col].has_rival_piece(piece.color)):
                 self.constants.fiftyMove = 0 # resetting fiftyMove if we made a capture
                 # updating the material
                 self.material[mr] -= self.squares[final.row][final.col].piece.value
+                isCapture = True
                     
-            
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
         
@@ -79,9 +88,10 @@ class Board:
             
             if diff != 0: # if there's a difference in col by pawn moves definitily its an capture or enPas
                 r = 1 if piece.color == "white" else 0
-                
+                isCapture = True
                 # enPas capture
                 if (final.row, final.col) == self.constants.enPas:
+                    isEnPas = True
                     self.material[r] -= 1
                     self.squares[initial.row][final.col].piece = None
 
@@ -95,9 +105,13 @@ class Board:
                 if not testing:
                     sound = Sound(os.path.join('assets/sounds/capture.wav'))
                     sound.play()
-                
             
-            self.check_promotion(piece, final)
+            # promotion logic
+            r = 0 if piece.color == "white" else 1
+            if final.row == 0 or final.row == 7:
+                self.squares[final.row][final.col].piece = Queen(piece.color)
+                self.material[r] += 9
+                isPromotion = True
             
         else:
             self.constants.enPas = None # resetting the enPas 
@@ -106,6 +120,7 @@ class Board:
             if self.castling(initial, final) and not testing: # castling
                 diff = final.col - initial.col
                 rook = piece.left_rook if diff < 0 else piece.right_rook
+                castle = "Q" if diff < 0 else "K"
                 self.move(rook, rook.moves[-1]) # need to move the rook 
                 
             # updating king KingSquares
@@ -133,19 +148,17 @@ class Board:
             
         piece.moved = True
         
+        # adding move to the move list
+        if not testing: # if actual move made
+            self.constants.move_list.append(Move.algebraic_notation(piece, move, isCapture, isCheck, isCheckMate, isPromotion, isEnPas, castle))
+        
         # clear valid moves
         piece.clear_moves()
         self.last_move = move  
         
     def valid_move(self, piece, move):
         return move in piece.moves
-    
-    def check_promotion(self, piece, final):
-        r = 0 if piece.color == "white" else 1
-        if final.row == 0 or final.row == 7:
-            self.squares[final.row][final.col].piece = Queen(piece.color)
-            self.material[r] += 9
-            
+                
     def castling(self,initial, final):
         return abs(initial.col - final.col) == 2 # if the king moved by 2 squares
             

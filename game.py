@@ -353,6 +353,8 @@ class Game:
         current_fen = self.board.getFEN()
         self.constants.history.append(current_fen)
         
+        print(self.constants.move_list)
+        
     def set_hover(self, row, col):
         if Square.in_range(row, col):
             self.hovered_sqr = self.board.squares[row][col]    

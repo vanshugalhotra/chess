@@ -24,7 +24,8 @@ class Constants:
         self.ply = 1 # no of half moves
         self.fiftyMove = 0
         self.enPas = None # enPas square
-        self.history = ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'] 
+        self.history = ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1']
+        self.move_list = [] 
         
 # ! need to refactor - in check
 
@@ -41,6 +42,7 @@ class Constants:
 # todo: promotion bug fix ✅
 # todo: take back moves
 # todo: material count ✅
-# todo: fiftyMove and 3 rep
+# todo: fiftyMove
+# todo:  3 rep ✅
 # todo: bug fix in engine (makemove -> clearPiece) ✅
 # todo: bug fix: clock time for engine ✅

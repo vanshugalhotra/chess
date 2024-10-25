@@ -1,5 +1,4 @@
 
-
 class Move:
     
     def __init__(self, initial, final):
@@ -17,3 +16,30 @@ class Move:
         
     def __eq__(self, other):
         return self.initial == other.initial and self.final == other.final
+    
+    
+    @staticmethod
+    def algebraic_notation(piece, move, isCapture=False, isCheck=False, isCheckMate=False, isPromotion=False, isEnPas=False, castle=""):
+        notation = ""
+        if castle:
+            notation = "o-o" if castle.lower() == 'k' else 'o-o-o'
+            return notation
+        
+        if not piece.name == "pawn":
+            notation += piece.notation.upper()
+            
+        if isCapture:
+            if piece.name == "pawn":
+                notation += move.initial.get_notation()[0]
+            notation += 'x'
+        notation += move.final.get_notation()
+        
+        if isPromotion:
+            notation += '=Q'
+
+        if isCheckMate:
+            notation += '#'
+        elif isCheck:
+            notation += '+'
+        
+        return notation
