@@ -25,7 +25,7 @@ class Main:
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH+WIDTH_OFFSET, HEIGHT+HEIGHT_OFFSET), pygame.DOUBLEBUF)
         pygame.display.set_caption("ਉਸਤਾਦ ਜੀ")
-        self.game = Game()
+        self.game = Game(surface=self.screen)
         self.screen.fill(BACKGROUND)  
 
         self.engine_board = constants.Board()
@@ -56,6 +56,7 @@ class Main:
                 game.show_pieces(screen)
                 game.show_hover(screen)
                 
+                game.render_right_side()
                 play_button = game.show_rightSide(screen)
                 
                 if dragger.dragging:
@@ -218,6 +219,7 @@ class Main:
             
             except Exception as e:
                 traceback.print_exc(file=sys.stderr)
+                print(e.args)
                 print("Check Error LOG")
     
     def move_engine(self):

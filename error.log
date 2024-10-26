@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "e:\All Codes\Python\chess-gui\main.py", line 156, in mainloop
+    if board.valid_move(dragger.piece, move):
+  File "e:\All Codes\Python\chess-gui\board.py", line 160, in valid_move
+    return move in piece.moves
+  File "e:\All Codes\Python\chess-gui\move.py", line 18, in __eq__
+    return self.initial == other.initial and self.final == other.final
+  File "e:\All Codes\Python\chess-gui\square.py", line 14, in __eq__
+    return self.row == other.row and self.col == other.col
+AttributeError: 'Square' object has no attribute 'row'

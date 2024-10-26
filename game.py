@@ -10,14 +10,142 @@ import time
 from sound import Sound
 import os
 
+class Position:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        
+class TextComponent:
+    def __init__(self, surface,font="Arial",font_size=22, bold=True, color=(255, 255, 255)):
+        self.font = pygame.font.SysFont(font, font_size, bold=bold)
+        self.color = color
+        self.surface = surface
+        
+    def render(self, text, **coords):
+        render_text = self.font.render(str(text), True, self.color)
+        render_rect = render_text.get_rect(**coords)
+        
+        self.surface.blit(render_text, render_rect)
+
+class Clock:
+    def __init__(self, surface, width=160, height=40, position=None, time=0, align='right', bg_color=(255, 255, 255), text_color=(255,0,0)):
+        self.width = width
+        self.height = height
+        self.surface = surface
+        self.position = position
+        self.bg_color = bg_color
+        self.text_color = text_color
+        self.timer_text = TextComponent(surface=self.surface, font="Lucida Console", font_size=25, bold=True, color=self.text_color)
+        self.clock_time = time
+        self.align = align
+        
+    def render(self, time):
+        self.clock_time = time
+        clock_rect = pygame.Rect(self.position.x, self.position.y, self.width, self.height)
+        
+        pygame.draw.rect(self.surface, self.bg_color, clock_rect, border_radius=8)
+        
+        # rendering the clock time
+        render_time = Game.format_time(self.clock_time)
+        
+        if self.align == 'right':
+            right = self.position.x + self.width - 10
+            centery = self.position.y + self.height // 2
+            self.timer_text.render(render_time, right=right, centery=centery)
+
+        else:
+            left = self.position.x + 10
+            centery = self.position.y + self.height // 2
+            self.timer_text.render(render_time, left=left, centery=centery)
+            
+class PlayerCard: 
+    def __init__(self, surface, width=180, height=220, image_size=170, padding_left=0, position=None, color = (50, 45, 42), shadow_color=(30, 30, 30), player=None, clock_props={}):
+        self.width = width
+        self.height = height
+        self.image_size = image_size
+        self.padding = (WIDTH_OFFSET - 2*(self.width + padding_left))
+        self.position = position
+        
+        self.color = color
+        self.shadow_offset = 8
+        self.shadow_color = shadow_color
+        self.border_radius = 15
+        
+        self.surface = surface
+        
+        self.player = player
+        
+        self.player_text = TextComponent(surface=self.surface)
+        
+        if clock_props['align'] == 'right':
+            clock_offset_x = self.width - 20
+        else:
+            clock_offset_x = -150
+        clock_x = self.position.x + clock_offset_x
+        clock_y = self.position.y + 10
+        player_clock_pos = Position(clock_x, clock_y)
+        
+        self.player_clock = Clock(surface=self.surface, time=self.player.time, align=clock_props['align'],bg_color=clock_props['bg_color'], text_color=clock_props['text_color'], position=player_clock_pos)
+        
+    def render(self):
+        
+        shadow_rect = pygame.Rect(self.position.x + self.shadow_offset, self.position.y + self.shadow_offset, self.width, self.height)
+        
+        pygame.draw.rect(self.surface, self.shadow_color, shadow_rect, border_radius=self.border_radius)
+        
+        # loading and scaling player image 
+        player_img = pygame.image.load(self.player.image)
+        player_img = pygame.transform.scale(player_img,(self.image_size, self.image_size))
+        
+        # creating the card BACKGROUND
+        card_rect = pygame.Rect(self.position.x, self.position.y, self.width, self.height)
+        pygame.draw.rect(self.surface, self.color, card_rect, border_radius=self.border_radius)
+        
+        # blitting the card image
+        self.surface.blit(player_img, (self.position.x, self.position.y))
+        
+        # rendering player's name
+        coords = (self.position.x + self.width // 2, self.position.y + self.image_size + 30)
+        
+        self.player_text.render(self.player.name, center=coords) 
+        
+        # rendering the player's Clock
+        self.player_clock.render(time=self.player.time)       
+        
+class RightUI:
+    def __init__(self, surface, player1, player2):
+        self.padding_left = 20
+        self.surface = surface
+        
+        # for player 1
+        card1_x = WIDTH + self.padding_left
+        card1_y = 20
+        card1_pos = Position(card1_x, card1_y)
+        card1_clock_props = {'align': 'right', 'bg_color': (255, 255, 255), 'text_color': (255, 0, 0)}
+        
+        self.card_1 = PlayerCard(surface=surface, padding_left=self.padding_left, position=card1_pos, player=player1, clock_props=card1_clock_props)
+        
+        # for player 2
+        card2_x = card1_x + self.card_1.width + self.card_1.padding
+        card2_pos = Position(card2_x, card1_y)
+        card2_clock_props = {'align': 'left', 'bg_color': (30, 30, 30), 'text_color': (255, 255, 255)}
+        
+        self.card_2 = PlayerCard(surface=surface, padding_left=self.padding_left, position=card2_pos, player=player2, clock_props=card2_clock_props)
+        
+    def render(self):
+        self.card_1.render()
+        self.card_2.render()
+        
 class Game:
     
-    def __init__(self):
+    def __init__(self, surface):
         self.hovered_sqr = None
         self.constants = Constants()
         self.board = Board(self.constants)
         self.dragger = Dragger()
         self.config = Config()
+        
+        self.surface = surface
         
         self.start = False
         self.engine_mode = False
@@ -31,8 +159,18 @@ class Game:
         self.current_player = self.white
         
         self.winner = None
+        self.scroll_y = 0
+        
+        self.right_side = RightUI(surface=self.surface, player1=self.white, player2=self.black)
         
     # render methods
+    def handle_scroll(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            max_scroll = max(0, len(self.constants.move_list) * move_row_height - move_list_height)
+            if event.button == 4:  # Scroll up
+                self.scroll_y = max(0, self.scroll_y - move_row_height)
+            elif event.button == 5:  # Scroll down
+                self.scroll_y = min(max_scroll, self.scroll_y + move_row_height)
     
     def show_bg(self, surface):
         theme = self.config.theme
@@ -195,14 +333,13 @@ class Game:
         # Calculating Start button position (centered between the two cards)
         button_x = (pos_x1 + card_width + pos_x2) // 2 - button_width // 2
         button_y = pos_y1 + card_height // 2 - button_height // 2 + 20
-          
+
         # properties for move list
         move_list_width = card_width + 100
         move_list_height = 270
         move_list_x = WIDTH + padding_left
         move_list_y = 310
         move_row_height = 30
-        scroll_y = 0
 
         bg_color = (35, 32, 30)
         cell_highlight_1 = (60, 57, 54)
@@ -213,9 +350,8 @@ class Game:
         font = pygame.font.SysFont('Arial', 22, bold=True)
 
         def draw_move_list():
-            nonlocal scroll_y
             max_scroll = max(0, len(self.constants.move_list) * move_row_height - move_list_height)
-            scroll_y = max(0, min(scroll_y, max_scroll)) 
+            self.scroll_y = max(0, min(self.scroll_y, max_scroll)) 
 
             move_surface = pygame.Surface((move_list_width, len(self.constants.move_list) * move_row_height), pygame.SRCALPHA)
 
@@ -227,9 +363,9 @@ class Game:
                 white_move = self.constants.move_list[i]
                 black_move = self.constants.move_list[i + 1] if i + 1 < len(self.constants.move_list) else ""
 
-                row_y = i // 2 * move_row_height - scroll_y
+                row_y = i // 2 * move_row_height - self.scroll_y
                 if move_list_y <= row_y + move_list_y < move_list_y + move_list_height:
-                    # Set color based on row/column alternation
+                    # Setting color based on row/column alternation
                     white_move_color = cell_highlight_1 if i % 4 == 0 else cell_highlight_2
                     black_move_color = cell_highlight_2 if i % 4 == 0 else cell_highlight_1
 
@@ -246,10 +382,10 @@ class Game:
                     move_surface.blit(white_move_text, (40, row_y))
                     move_surface.blit(black_move_text, (move_list_width // 2 + 10, row_y))
 
-            surface.blit(move_surface, (move_list_x, move_list_y))
+            surface.blit(move_surface, (move_list_x, move_list_y - self.scroll_y))
 
             # Draw scrollbar
-            draw_scrollbar(surface, move_list_x + move_list_width - 10, move_list_y, move_list_height, scroll_y, max_scroll, scrollbar_color)
+            draw_scrollbar(surface, move_list_x + move_list_width - 10, move_list_y, move_list_height, self.scroll_y, max_scroll, scrollbar_color)
 
         # Draw scrollbar with clamped position
         def draw_scrollbar(surface, x, y, height, scroll_y, max_scroll, color):
@@ -258,16 +394,6 @@ class Game:
                 scrollbar_y = y + (scroll_y / max_scroll) * (height - scrollbar_height)
                 pygame.draw.rect(surface, color, (x, scrollbar_y, 8, scrollbar_height), border_radius=5)
 
-        # Scroll event handler (call this in your event loop)
-        def handle_scroll(event):
-            nonlocal scroll_y
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4:  # Scroll up
-                    scroll_y = max(0, scroll_y - move_row_height)
-                elif event.button == 5:  # Scroll down
-                    scroll_y += move_row_height
-
-            
         def is_mouse_over_button(mouse_pos, rect):
             return rect.collidepoint(mouse_pos)
 
@@ -289,45 +415,6 @@ class Game:
             surface.blit(button_text, text_rect)
             
             return button_rect
-
-        # Function to draw each player's card
-        def draw_player_card(player, pos_x, pos_y, clock_pos, clock_bg_color, clock_text_color, align):
-            # Draw the shadow first, offset behind the card
-            shadow_rect = pygame.Rect(pos_x + shadow_offset, pos_y + shadow_offset, card_width, card_height)
-            pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=15)
-
-            # Load and scale player image (HD image with ideal resolution)
-            player_img = pygame.image.load(player.image)
-            player_img = pygame.transform.scale(player_img, (image_size, image_size))
-
-            # Create the card background
-            card_rect = pygame.Rect(pos_x, pos_y, card_width, card_height)
-            pygame.draw.rect(surface, card_color, card_rect, border_radius=15)
-
-            # Blit the player image (covering the entire top part of the card)
-            surface.blit(player_img, (pos_x, pos_y))
-
-            # Render and display the player's name
-            player_name = font.render(player.name, True, text_color)
-            name_rect = player_name.get_rect(center=(pos_x + card_width // 2, pos_y + image_size + 30))
-            surface.blit(player_name, name_rect)
-
-            clock_width = 160  
-            clock_height = 40  
-            clock_rect = pygame.Rect(clock_pos[0], clock_pos[1], clock_width, clock_height)
-            pygame.draw.rect(surface, clock_bg_color, clock_rect, border_radius=8) 
-
-            # Render and display the player's time
-            clock_font = pygame.font.SysFont('Lucida Console', 25, bold=True) 
-            player_time = Game.format_time(player.time) 
-            clock_surface = clock_font.render(player_time, True, clock_text_color)
-            
-            if align == 'right':
-                clock_surface_rect = clock_surface.get_rect(right=clock_pos[0] + clock_width - 10, centery=clock_pos[1] + clock_height // 2)
-            else:
-                clock_surface_rect = clock_surface.get_rect(left=clock_pos[0] + 10, centery=clock_pos[1] + clock_height // 2)
-
-            surface.blit(clock_surface, clock_surface_rect)
 
         def draw_winner_banner(player, pos_x, pos_y):
             banner_width = card_width
@@ -367,12 +454,6 @@ class Game:
             text_rect = material_text.get_rect(center=(circle_x, circle_y))
             surface.blit(material_text, text_rect)
 
-        clock_pos_player1 = (pos_x1 + card_width - 20, pos_y1 + 10) 
-        draw_player_card(self.white, pos_x1, pos_y1, clock_pos_player1, (255, 255, 255), (255, 0, 0), align='right') 
-        
-        clock_pos_player2 = (pos_x2 - 150, pos_y1 + 10) 
-        draw_player_card(self.black, pos_x2, pos_y1, clock_pos_player2, (30, 30, 30), (255, 255, 255), align='left') 
-        
         button_rect = draw_start_button()
         
         if self.winner == self.white:
@@ -392,6 +473,8 @@ class Game:
             
         return button_rect
         
+    def render_right_side(self):
+        self.right_side.render()
     # other methods
     
     def toggle_engine_mode(self):
@@ -449,7 +532,7 @@ class Game:
             self.config.move_sound.play()
             
     def reset(self):
-        self.__init__()
+        self.__init__(surface=self.surface)
         Board.checkmate = False
         Board.stalemate = False
         Piece.KingInCheck = False
