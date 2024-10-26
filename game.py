@@ -87,7 +87,8 @@ class PlayerCard:
         
         self.player_clock = Clock(surface=self.surface, time=self.player.time, align=clock_props['align'],bg_color=clock_props['bg_color'], text_color=clock_props['text_color'], position=player_clock_pos)
         
-    def render(self):
+    def render(self, player):
+        self.player = player
         
         shadow_rect = pygame.Rect(self.position.x + self.shadow_offset, self.position.y + self.shadow_offset, self.width, self.height)
         
@@ -222,8 +223,8 @@ class RightUI:
         self.player2 = player2
         self.winner = winner
         
-        self.card_1.render()
-        self.card_2.render()
+        self.card_1.render(player=self.player1)
+        self.card_2.render(player=self.player2)
         button_rect = self.play_button.render()
         
         show = True if self.winner else False
@@ -491,26 +492,6 @@ class Game:
                 scrollbar_y = y + (scroll_y / max_scroll) * (height - scrollbar_height)
                 pygame.draw.rect(surface, color, (x, scrollbar_y, 8, scrollbar_height), border_radius=5)
 
-        def draw_winner_banner(player, pos_x, pos_y):
-            banner_width = card_width
-            banner_height = 40
-            banner_color = '#f39c12'
-            banner_text_color = '#ffffff'
-            banner_font = pygame.font.SysFont('Arial', 24, bold=True)
-
-            # Banner position (directly below the player's card)
-            banner_x = pos_x
-            banner_y = pos_y + card_height + 10  # Adjust the Y position slightly below the card
-
-            # Draw the banner
-            banner_rect = pygame.Rect(banner_x, banner_y, banner_width, banner_height)
-            pygame.draw.rect(surface, banner_color, banner_rect, border_radius=8)
-
-            # Render and display the banner text
-            banner_text = banner_font.render("Winner!", True, banner_text_color)
-            banner_text_rect = banner_text.get_rect(center=(banner_x + banner_width // 2, banner_y + banner_height // 2))
-            surface.blit(banner_text, banner_text_rect)
-
         def draw_material_indicator(player_material, pos_x, pos_y):
             # Small circular indicator to show player advantage
             indicator_radius = 15
@@ -528,13 +509,7 @@ class Game:
             material_text = font.render(material_txt, True, indicator_text_color)
             text_rect = material_text.get_rect(center=(circle_x, circle_y))
             surface.blit(material_text, text_rect)
-        
-        if self.winner == self.white:
-            draw_winner_banner(self.white, pos_x2, pos_y1)
-        
-        elif self.winner == self.black:
-            draw_winner_banner(self.black, pos_x1, pos_y1)
-            
+                    
         # Material advantage indicator logic
         if self.board.material[0] > self.board.material[1]:  # White has more material
             draw_material_indicator(self.board.material[0], pos_x1, pos_y1)
