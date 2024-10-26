@@ -112,12 +112,77 @@ class PlayerCard:
         # rendering the player's Clock
         self.player_clock.render(time=self.player.time)       
         
-class RightUI:
-    def __init__(self, surface, player1, player2):
-        self.padding_left = 20
+class Banner:
+    def __init__(self,surface, width=0, height=40, color='#f39c12', text_color="#ffffff", position=None):
+        self.width = width       
+        self.height = height
+        self.bg_color = color
+        self.text_color = text_color
+        self.position = position
         self.surface = surface
         
-        # for player 1
+        self.banner_text = TextComponent(surface=self.surface, font_size=24)
+        
+    def render(self, show, pos_x):
+        self.position.x = pos_x
+        if show:
+            banner_rect = pygame.Rect(self.position.x, self.position.y, self.width, self.height)
+            
+            pygame.draw.rect(self.surface, self.bg_color, banner_rect, border_radius=8) 
+            
+            center = (self.position.x + self.width // 2, self.position.y + self.height // 2)
+            
+            self.banner_text.render("Winner!!", center=center)
+
+class Button:
+    def __init__(self,surface, position=None, width=150, height=50, color=(44, 62, 80), hover_color=(52, 152, 219), text_color=(241, 196, 15), shadow_color=(30, 30, 30), shadow_offset=5, border_radius=10, text=""):
+        self.surface = surface
+        self.position = position
+        self.width = width
+        self.height = height
+        self.text = text
+        self.bg_color = color
+        self.text_color = text_color
+        self.hover_color = hover_color
+        self.shadow_color = shadow_color
+        self.shadow_offset = shadow_offset
+        self.border_radius = border_radius
+        
+        self.button_text = TextComponent(surface=self.surface, font_size=26, color=self.text_color)
+        
+    def render(self):
+        mouse_pos = pygame.mouse.get_pos()
+        button_rect =  pygame.Rect(self.position.x, self.position.y, self.width, self.height)
+        
+        # Shadow
+        shadow_rect = pygame.Rect(self.position.x + self.shadow_offset, self.position.y + self.shadow_offset, self.width, self.height)
+        
+        pygame.draw.rect(self.surface, self.shadow_color, shadow_rect, border_radius=self.border_radius)
+        
+        if Button.is_mouse_over(mouse_pos, button_rect):
+            pygame.draw.rect(self.surface, self.hover_color, button_rect, border_radius=self.border_radius)
+            
+        else:
+            pygame.draw.rect(self.surface, self.bg_color,button_rect, border_radius=self.border_radius)
+            
+        center = (self.position.x + self.width // 2, self.position.y + self.height // 2)
+        self.button_text.render(self.text, center=center)
+        
+        return button_rect
+        
+    @staticmethod
+    def is_mouse_over(mouse_pos,rect):
+        return rect.collidepoint(mouse_pos)
+        
+class RightUI:
+    def __init__(self, surface, player1, player2, winner):
+        self.padding_left = 20
+        self.surface = surface
+        self.player1 = player1
+        self.player2 = player2
+        self.winner = winner
+        
+        # ------------------------------------for player 1
         card1_x = WIDTH + self.padding_left
         card1_y = 20
         card1_pos = Position(card1_x, card1_y)
@@ -125,16 +190,48 @@ class RightUI:
         
         self.card_1 = PlayerCard(surface=surface, padding_left=self.padding_left, position=card1_pos, player=player1, clock_props=card1_clock_props)
         
-        # for player 2
+        # ------------------------------------for player 2
         card2_x = card1_x + self.card_1.width + self.card_1.padding
         card2_pos = Position(card2_x, card1_y)
         card2_clock_props = {'align': 'left', 'bg_color': (30, 30, 30), 'text_color': (255, 255, 255)}
         
         self.card_2 = PlayerCard(surface=surface, padding_left=self.padding_left, position=card2_pos, player=player2, clock_props=card2_clock_props)
         
-    def render(self):
+        
+        # ---------------------------------------play Button
+        play_btn_width = 150
+        play_btn_height = 50
+        
+        play_x = (self.card_1.position.x + self.card_1.width + self.card_2.position.x) // 2 - play_btn_width // 2
+        
+        play_y = self.card_1.position.y + self.card_1.height // 2 - play_btn_height // 2 + 20
+        play_button_position = Position(play_x, play_y)
+        
+        self.play_button = Button(surface=self.surface, position=play_button_position, width=play_btn_width, height=play_btn_height, text="PLAY")
+        
+        #------------------------------------------winner Banner
+        banner_x = 0
+        banner_y = self.card_1.position.y + self.card_1.height + 10
+        
+        banner_position = Position(banner_x, banner_y)
+        
+        self.winner_banner = Banner(surface=self.surface, width=self.card_1.width, position=banner_position)
+        
+    def render(self, player1, player2, winner):
+        self.player1 = player1
+        self.player2 = player2
+        self.winner = winner
+        
         self.card_1.render()
         self.card_2.render()
+        button_rect = self.play_button.render()
+        
+        show = True if self.winner else False
+        pos_x = self.card_1.position.x if self.winner == self.player2 else self.card_2.position.x
+        
+        self.winner_banner.render(show=show, pos_x=pos_x)
+        
+        return button_rect
         
 class Game:
     
@@ -161,7 +258,7 @@ class Game:
         self.winner = None
         self.scroll_y = 0
         
-        self.right_side = RightUI(surface=self.surface, player1=self.white, player2=self.black)
+        self.right_side = RightUI(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
     # render methods
     def handle_scroll(self, event):
@@ -394,28 +491,6 @@ class Game:
                 scrollbar_y = y + (scroll_y / max_scroll) * (height - scrollbar_height)
                 pygame.draw.rect(surface, color, (x, scrollbar_y, 8, scrollbar_height), border_radius=5)
 
-        def is_mouse_over_button(mouse_pos, rect):
-            return rect.collidepoint(mouse_pos)
-
-        def draw_start_button():
-            mouse_pos = pygame.mouse.get_pos()
-            button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
-
-            # Draw shadow
-            shadow_rect = pygame.Rect(button_x + shadow_offset, button_y + shadow_offset, button_width, button_height)
-            pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=10)
-            
-            if is_mouse_over_button(mouse_pos, button_rect):
-                pygame.draw.rect(surface, button_hover_color, button_rect, border_radius=10)
-            else:
-                pygame.draw.rect(surface, button_color, button_rect, border_radius=10)
-
-            button_text = button_font.render("PLAY", True, button_text_color)
-            text_rect = button_text.get_rect(center=(button_x + button_width // 2, button_y + button_height // 2))
-            surface.blit(button_text, text_rect)
-            
-            return button_rect
-
         def draw_winner_banner(player, pos_x, pos_y):
             banner_width = card_width
             banner_height = 40
@@ -453,8 +528,6 @@ class Game:
             material_text = font.render(material_txt, True, indicator_text_color)
             text_rect = material_text.get_rect(center=(circle_x, circle_y))
             surface.blit(material_text, text_rect)
-
-        button_rect = draw_start_button()
         
         if self.winner == self.white:
             draw_winner_banner(self.white, pos_x2, pos_y1)
@@ -471,10 +544,8 @@ class Game:
         if self.constants.move_list:
             draw_move_list()
             
-        return button_rect
-        
     def render_right_side(self):
-        self.right_side.render()
+        return self.right_side.render(player1=self.white, player2=self.black, winner=self.winner) # returns the play button
     # other methods
     
     def toggle_engine_mode(self):

@@ -56,8 +56,8 @@ class Main:
                 game.show_pieces(screen)
                 game.show_hover(screen)
                 
-                game.render_right_side()
-                play_button = game.show_rightSide(screen)
+                play_button = game.render_right_side()
+                # game.show_rightSide(screen)
                 
                 if dragger.dragging:
                     dragger.update_blit(screen)
