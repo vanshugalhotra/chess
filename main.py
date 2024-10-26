@@ -57,7 +57,6 @@ class Main:
                 game.show_hover(screen)
                 
                 play_button = game.render_right_side()
-                # game.show_rightSide(screen)
                 
                 if dragger.dragging:
                     dragger.update_blit(screen)
@@ -81,10 +80,17 @@ class Main:
                                                         
                 # event handling
                 for event in pygame.event.get():
-                    
                     if not Board.checkmate and not Board.repetition:
                         # click event
                         if event.type == pygame.MOUSEBUTTONDOWN:
+                            
+                            # checking for scroll events
+                            if event.button == 4:
+                                self.game.scroll_y -= 10
+                            elif event.button == 5: # scroll down
+                                self.game.scroll_y += 10
+                                
+                            # self.game.scroll_y = max(0, min(self.game.scroll_y, self.game.max_scroll))
                             
                             # checking for play button click
                             if event.button == 1:  # Left mouse button

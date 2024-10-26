@@ -175,6 +175,113 @@ class Button:
     def is_mouse_over(mouse_pos,rect):
         return rect.collidepoint(mouse_pos)
         
+class CircularText:
+    def __init__(self, surface, radius=15, bg_color=(240, 240, 240), text_color=(0,0,0), position=None, text=""):
+        self.surface = surface
+        self.radius = radius
+        
+        self.position = position
+        self.bg_color = bg_color
+        self.text_color = text_color
+        self.text = text
+        
+        self.circle_text = TextComponent(surface=self.surface, font_size=18, color=self.text_color)
+        
+    def render(self, text, pos_x):
+        self.position.x = pos_x - self.radius + 10
+        self.text = text
+        center = (self.position.x, self.position.y)
+        
+        pygame.draw.circle(self.surface, self.bg_color, center , self.radius)
+        
+        self.circle_text.render(self.text, center=center)
+
+class ScrollBar:
+    def __init__(self, surface, position=None, height=0, max_scroll=0, color=(100, 100, 100), scroll_y=0):
+        self.surface = surface
+        self.position = position
+        self.height = height
+        self.max_scroll = max_scroll
+        self.color = color
+        self.scroll_y = scroll_y
+        
+    def render(self, max_scroll, scroll_y):
+        self.max_scroll = max_scroll
+        self.scroll_y = scroll_y
+        if self.max_scroll > 0:
+            scrollbar_height = self.height * (self.height / (self.height + self.max_scroll))
+            
+            scrollbar_y = self.position.y + (self.scroll_y / self.max_scroll) * (self.height - scrollbar_height)
+            
+            pygame.draw.rect(self.surface, self.color, (self.position.x, scrollbar_y, 8, scrollbar_height), border_radius=5)
+            
+class MoveList:
+    def __init__(self, surface, width=0, height=270, position=None, bg_color=(35, 32, 30), highlight_color_1 = (60, 57, 54), highlight_color_2 = (45, 42, 40), scrollbar_color = (100, 100, 100), text_color = (255, 255, 255)):
+        self.surface = surface
+        self.width = width
+        self.height = height
+        self.position = position
+        
+        self.row_height = 30
+        
+        self.bg_color = bg_color
+        self.highlight_color_1 = highlight_color_1
+        self.highlight_color_2 = highlight_color_2
+        self.scrollbar_color = scrollbar_color
+        self.text_color = text_color
+        
+        self.scroll_y = 0
+        self.max_scroll = 0
+        
+        self.move_text = TextComponent(surface=self.surface, font_size=22, color=self.text_color)
+        
+        self.move_list = []
+        
+        scroll_pos_x = self.position.x + self.width - 10
+        scroll_pos_y = self.position.y
+    
+        scroll_pos = Position(scroll_pos_x, scroll_pos_y)
+        
+        self.scrollbar = ScrollBar(surface=self.surface, position=scroll_pos, height=self.height, scroll_y=self.scroll_y, color=self.scrollbar_color, max_scroll=self.max_scroll)
+        
+        
+    def render(self, move_list, scroll_y):
+        self.scroll_y = scroll_y
+        self.move_list = move_list
+        self.max_scroll = max(0, len(move_list) * self.row_height - self.height)
+        
+        self.scroll_y = max(0, min(self.scroll_y, self.max_scroll))
+        
+        move_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        self.move_text.surface = move_surface
+        
+        # BACKGROUND
+        pygame.draw.rect(self.surface, self.bg_color, (self.position.x, self.position.y, self.width, self.height), border_radius=10)
+        
+        # rendering each Move
+        for i in range(0, len(move_list), 2):
+            white_move = move_list[i]
+            black_move = move_list[i+1] if i+1 < len(move_list) else ""
+            
+            row_y = i // 2 * self.row_height - self.scroll_y
+            if self.position.y <= row_y + self.position.y < self.position.y + self.height:
+                # setting color alternating
+                white_move_color = self.highlight_color_1 if i%4 == 0 else self.highlight_color_2
+                black_move_color = self.highlight_color_2 if i%4 == 0 else self.highlight_color_1
+                
+                pygame.draw.rect(move_surface, white_move_color,(0, row_y, self.width // 2, self.height) )
+                
+                pygame.draw.rect(move_surface, black_move_color, (self.width // 2, row_y, self.width // 2, self.height))
+                
+                # rendering move text
+                self.move_text.render(f"{i//2 + 1}", left=10, top=row_y)
+                self.move_text.render(white_move, left=40, top=row_y)
+                self.move_text.render(black_move, left=self.width // 2 + 10, top=row_y)
+        
+        self.surface.blit(move_surface, (self.position.x, self.position.y))
+        
+        self.scrollbar.render(max_scroll=self.max_scroll, scroll_y=self.scroll_y)
+
 class RightUI:
     def __init__(self, surface, player1, player2, winner):
         self.padding_left = 20
@@ -218,7 +325,24 @@ class RightUI:
         
         self.winner_banner = Banner(surface=self.surface, width=self.card_1.width, position=banner_position)
         
-    def render(self, player1, player2, winner):
+        # --------------------------------------------material indicator
+        radius = 15
+        circle_x = 0
+        circle_y = self.card_1.position.y + self.card_1.height - radius + 20
+        circle_position = Position(circle_x, circle_y)
+        
+        self.material_indicator = CircularText(surface=self.surface, radius=radius, position=circle_position)
+        
+        
+        # ----------------------------------------------- move list
+        move_list_x = WIDTH + self.padding_left
+        move_list_y = 310
+        move_list_position = Position(move_list_x, move_list_y)
+        
+        self.move_list = MoveList(surface=self.surface, width=self.card_1.width + 100, position=move_list_position)
+        
+        
+    def render(self, player1, player2, winner, material, move_list, scroll_y):
         self.player1 = player1
         self.player2 = player2
         self.winner = winner
@@ -231,6 +355,20 @@ class RightUI:
         pos_x = self.card_1.position.x if self.winner == self.player2 else self.card_2.position.x
         
         self.winner_banner.render(show=show, pos_x=pos_x)
+        
+        material_count = abs(material[0] - material[1])
+        if material_count != 0:
+            material_text = f'+{material_count}'
+            if material[0] > material[1]: # white has more material
+                pos_x = self.card_1.position.x + self.card_1.width
+            elif material[1] > material[0]:
+                pos_x = self.card_2.position.x + self.card_2.width
+            
+            self.material_indicator.render(material_text, pos_x)
+            
+        if len(move_list) > 0:
+            self.move_list.render(move_list, scroll_y=scroll_y)
+        
         
         return button_rect
         
@@ -257,19 +395,12 @@ class Game:
         self.current_player = self.white
         
         self.winner = None
+        
         self.scroll_y = 0
         
         self.right_side = RightUI(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
     # render methods
-    def handle_scroll(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            max_scroll = max(0, len(self.constants.move_list) * move_row_height - move_list_height)
-            if event.button == 4:  # Scroll up
-                self.scroll_y = max(0, self.scroll_y - move_row_height)
-            elif event.button == 5:  # Scroll down
-                self.scroll_y = min(max_scroll, self.scroll_y + move_row_height)
-    
     def show_bg(self, surface):
         theme = self.config.theme
         for row in range(ROWS):
@@ -397,130 +528,8 @@ class Game:
         msg_rect = msg.get_rect(bottomright=(right_x_position - padding, HEIGHT - padding))
         screen.blit(msg, msg_rect)
             
-    def show_rightSide(self, surface):
-        padding_left = 20
-        card_width = 180 
-        card_height = 220  
-        image_size = 170  
-        padding = (WIDTH_OFFSET - 2*(card_width + padding_left))  
-
-        # Card positions for player1 (left) and player2 (right)
-        pos_x1 = WIDTH + padding_left  # X position for player1
-        pos_y1 = 20  
-        pos_x2 = pos_x1 + card_width + padding  # X position for player2
-
-        card_color = (50, 45, 42)  
-
-        shadow_offset = 8
-        shadow_color = (30, 30, 30) 
-
-        # Text properties
-        font = pygame.font.SysFont('Arial', 22, bold=True)
-        text_color = (255, 255, 255)  # White text
-        
-        # Start button properties
-        button_width = 150
-        button_height = 50
-        button_color = (44, 62, 80)  # Dark Blue color (background)
-        button_hover_color = (52, 152, 219)  # Brighter gradient-like blue on hover
-        button_text_color = (241, 196, 15)  # Soft Yellow text
-        shadow_color = (30, 30, 30)  # Dark shadow color
-        shadow_offset = 5  # Distance for the shadow
-        button_font = pygame.font.SysFont('Arial', 26, bold=True)
-
-        # Calculating Start button position (centered between the two cards)
-        button_x = (pos_x1 + card_width + pos_x2) // 2 - button_width // 2
-        button_y = pos_y1 + card_height // 2 - button_height // 2 + 20
-
-        # properties for move list
-        move_list_width = card_width + 100
-        move_list_height = 270
-        move_list_x = WIDTH + padding_left
-        move_list_y = 310
-        move_row_height = 30
-
-        bg_color = (35, 32, 30)
-        cell_highlight_1 = (60, 57, 54)
-        cell_highlight_2 = (45, 42, 40)
-        scrollbar_color = (100, 100, 100)
-        text_color = (255, 255, 255)
-
-        font = pygame.font.SysFont('Arial', 22, bold=True)
-
-        def draw_move_list():
-            max_scroll = max(0, len(self.constants.move_list) * move_row_height - move_list_height)
-            self.scroll_y = max(0, min(self.scroll_y, max_scroll)) 
-
-            move_surface = pygame.Surface((move_list_width, len(self.constants.move_list) * move_row_height), pygame.SRCALPHA)
-
-            # background for move list area
-            pygame.draw.rect(surface, bg_color, (move_list_x, move_list_y, move_list_width, move_list_height), border_radius=10)
-
-            # Rendering each move with alternating highlights
-            for i in range(0, len(self.constants.move_list), 2):
-                white_move = self.constants.move_list[i]
-                black_move = self.constants.move_list[i + 1] if i + 1 < len(self.constants.move_list) else ""
-
-                row_y = i // 2 * move_row_height - self.scroll_y
-                if move_list_y <= row_y + move_list_y < move_list_y + move_list_height:
-                    # Setting color based on row/column alternation
-                    white_move_color = cell_highlight_1 if i % 4 == 0 else cell_highlight_2
-                    black_move_color = cell_highlight_2 if i % 4 == 0 else cell_highlight_1
-
-                    # background for white and black moves
-                    pygame.draw.rect(move_surface, white_move_color, (0, row_y, move_list_width // 2, move_row_height))
-                    pygame.draw.rect(move_surface, black_move_color, (move_list_width // 2, row_y, move_list_width // 2, move_row_height))
-
-                    # Rendering move texts
-                    move_num_text = font.render(f"{i//2 + 1}.", True, text_color)
-                    white_move_text = font.render(white_move, True, text_color)
-                    black_move_text = font.render(black_move, True, text_color)
-
-                    move_surface.blit(move_num_text, (10, row_y))
-                    move_surface.blit(white_move_text, (40, row_y))
-                    move_surface.blit(black_move_text, (move_list_width // 2 + 10, row_y))
-
-            surface.blit(move_surface, (move_list_x, move_list_y - self.scroll_y))
-
-            # Draw scrollbar
-            draw_scrollbar(surface, move_list_x + move_list_width - 10, move_list_y, move_list_height, self.scroll_y, max_scroll, scrollbar_color)
-
-        # Draw scrollbar with clamped position
-        def draw_scrollbar(surface, x, y, height, scroll_y, max_scroll, color):
-            if max_scroll > 0:
-                scrollbar_height = height * (height / (height + max_scroll))
-                scrollbar_y = y + (scroll_y / max_scroll) * (height - scrollbar_height)
-                pygame.draw.rect(surface, color, (x, scrollbar_y, 8, scrollbar_height), border_radius=5)
-
-        def draw_material_indicator(player_material, pos_x, pos_y):
-            # Small circular indicator to show player advantage
-            indicator_radius = 15
-            indicator_bg_color = (240, 240, 240)  # Light shade of white
-            indicator_text_color = (0, 0, 0)      # Black text
-            circle_x = pos_x + card_width - indicator_radius + 10 # Bottom-right corner of the card
-            circle_y = pos_y + card_height - indicator_radius + 20
-
-            # Draw the circle indicator (background)
-            pygame.draw.circle(surface, indicator_bg_color, (circle_x, circle_y), indicator_radius)
-
-            # Render the player's material inside the indicator
-            font = pygame.font.SysFont('Arial', 18, bold=True)
-            material_txt = f'+{abs(self.board.material[0] - self.board.material[1])}'
-            material_text = font.render(material_txt, True, indicator_text_color)
-            text_rect = material_text.get_rect(center=(circle_x, circle_y))
-            surface.blit(material_text, text_rect)
-                    
-        # Material advantage indicator logic
-        if self.board.material[0] > self.board.material[1]:  # White has more material
-            draw_material_indicator(self.board.material[0], pos_x1, pos_y1)
-        elif self.board.material[1] > self.board.material[0]:  # Black has more material
-            draw_material_indicator(self.board.material[1], pos_x2, pos_y1)
-        
-        if self.constants.move_list:
-            draw_move_list()
-            
     def render_right_side(self):
-        return self.right_side.render(player1=self.white, player2=self.black, winner=self.winner) # returns the play button
+        return self.right_side.render(player1=self.white, player2=self.black, winner=self.winner, material=self.board.material, move_list=self.constants.move_list, scroll_y=self.scroll_y) # returns the play button
     # other methods
     
     def toggle_engine_mode(self):
