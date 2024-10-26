@@ -22,7 +22,7 @@ class Move:
     def algebraic_notation(piece, move, isCapture=False, isCheck=False, isCheckMate=False, isPromotion=False, isEnPas=False, castle=""):
         notation = ""
         if castle:
-            notation = "o-o" if castle.lower() == 'k' else 'o-o-o'
+            notation = "O-O" if castle.lower() == 'k' else 'O-O-O'
             return notation
         
         if not piece.name == "pawn":

@@ -16,7 +16,7 @@ class Position:
         self.y = y
         
 class TextComponent:
-    def __init__(self, surface,font="Arial",font_size=22, bold=True, color=(255, 255, 255)):
+    def __init__(self, surface,font="Arial",font_size=22, bold=True, color=WHITE):
         self.font = pygame.font.SysFont(font, font_size, bold=bold)
         self.color = color
         self.surface = surface
@@ -28,7 +28,7 @@ class TextComponent:
         self.surface.blit(render_text, render_rect)
 
 class Clock:
-    def __init__(self, surface, width=160, height=40, position=None, time=0, align='right', bg_color=(255, 255, 255), text_color=(255,0,0)):
+    def __init__(self, surface, width=160, height=40, position=None, time=0, align='right', bg_color=WHITE, text_color=RED):
         self.width = width
         self.height = height
         self.surface = surface
@@ -59,7 +59,7 @@ class Clock:
             self.timer_text.render(render_time, left=left, centery=centery)
             
 class PlayerCard: 
-    def __init__(self, surface, width=180, height=220, image_size=170, padding_left=0, position=None, color = (50, 45, 42), shadow_color=(30, 30, 30), player=None, clock_props={}):
+    def __init__(self, surface, width=180, height=220, image_size=170, padding_left=0, position=None, color = BROWN, shadow_color=JET_BLACK, player=None, clock_props={}):
         self.width = width
         self.height = height
         self.image_size = image_size
@@ -114,7 +114,7 @@ class PlayerCard:
         self.player_clock.render(time=self.player.time)       
         
 class Banner:
-    def __init__(self,surface, width=0, height=40, color='#f39c12', text_color="#ffffff", position=None):
+    def __init__(self,surface, width=0, height=40, color=AMBER, text_color=WHITE, position=None):
         self.width = width       
         self.height = height
         self.bg_color = color
@@ -136,7 +136,7 @@ class Banner:
             self.banner_text.render("Winner!!", center=center)
 
 class Button:
-    def __init__(self,surface, position=None, width=150, height=50, color=(44, 62, 80), hover_color=(52, 152, 219), text_color=(241, 196, 15), shadow_color=(30, 30, 30), shadow_offset=5, border_radius=10, text=""):
+    def __init__(self,surface, position=None, width=150, height=50, color=MIDNIGHT_BLUE, hover_color=SKY_BLUE, text_color=YELLOW, shadow_color=JET_BLACK, shadow_offset=5, border_radius=10, text=""):
         self.surface = surface
         self.position = position
         self.width = width
@@ -176,7 +176,7 @@ class Button:
         return rect.collidepoint(mouse_pos)
         
 class CircularText:
-    def __init__(self, surface, radius=15, bg_color=(240, 240, 240), text_color=(0,0,0), position=None, text=""):
+    def __init__(self, surface, radius=15, bg_color=LIGHT_GRAY, text_color=JET_BLACK, position=None, text=""):
         self.surface = surface
         self.radius = radius
         
@@ -216,7 +216,7 @@ class ScrollBar:
             pygame.draw.rect(self.surface, self.color, (self.position.x, scrollbar_y, 8, scrollbar_height), border_radius=5)
             
 class MoveList:
-    def __init__(self, surface, width=0, height=270, position=None, bg_color=(35, 32, 30), highlight_color_1 = (60, 57, 54), highlight_color_2 = (45, 42, 40), scrollbar_color = (100, 100, 100), text_color = (255, 255, 255)):
+    def __init__(self, surface, width=0, height=270, position=None, bg_color=(35, 32, 30), highlight_color_1 = (60, 57, 54), highlight_color_2 = (45, 42, 40), scrollbar_color = (100, 100, 100), text_color = WHITE):
         self.surface = surface
         self.width = width
         self.height = height
@@ -294,14 +294,14 @@ class RightUI:
         card1_x = WIDTH + self.padding_left
         card1_y = 20
         card1_pos = Position(card1_x, card1_y)
-        card1_clock_props = {'align': 'right', 'bg_color': (255, 255, 255), 'text_color': (255, 0, 0)}
+        card1_clock_props = {'align': 'right', 'bg_color': WHITE, 'text_color': (255, 0, 0)}
         
         self.card_1 = PlayerCard(surface=surface, padding_left=self.padding_left, position=card1_pos, player=player1, clock_props=card1_clock_props)
         
         # ------------------------------------for player 2
         card2_x = card1_x + self.card_1.width + self.card_1.padding
         card2_pos = Position(card2_x, card1_y)
-        card2_clock_props = {'align': 'left', 'bg_color': (30, 30, 30), 'text_color': (255, 255, 255)}
+        card2_clock_props = {'align': 'left', 'bg_color': JET_BLACK, 'text_color': WHITE}
         
         self.card_2 = PlayerCard(surface=surface, padding_left=self.padding_left, position=card2_pos, player=player2, clock_props=card2_clock_props)
         
@@ -501,7 +501,7 @@ class Game:
                 
     def display_message(self, screen, message):
         font = pygame.font.SysFont('Arial', 80, bold=True)
-        msg = font.render(message, True, (255, 255, 255))  # White text
+        msg = font.render(message, True, WHITE)  # White text
 
         right_x_position = WIDTH + WIDTH_OFFSET - 200
 

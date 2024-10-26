@@ -86,12 +86,10 @@ class Main:
                             
                             # checking for scroll events
                             if event.button == 4:
-                                self.game.scroll_y -= 10
+                                self.game.scroll_y -= 15
                             elif event.button == 5: # scroll down
-                                self.game.scroll_y += 10
+                                self.game.scroll_y += 15
                                 
-                            # self.game.scroll_y = max(0, min(self.game.scroll_y, self.game.max_scroll))
-                            
                             # checking for play button click
                             if event.button == 1:  # Left mouse button
                                 mouse_pos = pygame.mouse.get_pos()
@@ -108,22 +106,23 @@ class Main:
                             clicked_col = dragger.mouseX // SQSIZE
                             
                             # if theres a piece on the clicked area
-                            if board.squares[clicked_row][clicked_col].has_piece():
-                                piece = board.squares[clicked_row][clicked_col].piece
-                                
-                                # valid piece color?
-                                if piece.color == game.constants.next_player:
-                                    board.calc_moves(piece, clicked_row, clicked_col, wannaCheck=True)
-                                    dragger.save_initial(event.pos)
-                                    dragger.drag_piece(piece)
+                            if Square.in_range(clicked_row, clicked_col):
+                                if board.squares[clicked_row][clicked_col].has_piece():
+                                    piece = board.squares[clicked_row][clicked_col].piece
                                     
-                                    #show methods
-                                    game.show_bg(screen)
-                                    game.show_check(screen)
-                                    game.show_last_move(screen)
-                                    game.show_moves(screen)
-                                    game.show_pieces(screen)
-                        
+                                    # valid piece color?
+                                    if piece.color == game.constants.next_player:
+                                        board.calc_moves(piece, clicked_row, clicked_col, wannaCheck=True)
+                                        dragger.save_initial(event.pos)
+                                        dragger.drag_piece(piece)
+                                        
+                                        #show methods
+                                        game.show_bg(screen)
+                                        game.show_check(screen)
+                                        game.show_last_move(screen)
+                                        game.show_moves(screen)
+                                        game.show_pieces(screen)
+                            
                         # mouse motion
                         elif event.type == pygame.MOUSEMOTION:
                             motion_row = event.pos[1] // SQSIZE

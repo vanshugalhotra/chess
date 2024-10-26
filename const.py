@@ -18,6 +18,16 @@ CHECK = '#dc143c'
 MESSAGE = '#dc143c'
 BACKGROUND = '#312e2b'
 
+WHITE = "#ffffff"
+RED = "FF0000"
+BROWN = "#322D2A"
+JET_BLACK = "#1E1E1E"
+AMBER = "#f39c12"
+MIDNIGHT_BLUE = "#2C3E50"
+SKY_BLUE = "#3498DB"
+YELLOW = "#F1C40F"
+LIGHT_GRAY = "#F0F0F0"
+
 class Constants:
     def __init__(self):
         self.next_player = "white"
@@ -46,3 +56,4 @@ class Constants:
 # todo:  3 rep ✅
 # todo: bug fix in engine (makemove -> clearPiece) ✅
 # todo: bug fix: clock time for engine ✅
+# todo: bug fix: valid knight moves
