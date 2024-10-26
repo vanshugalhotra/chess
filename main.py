@@ -91,8 +91,7 @@ class Main:
                                 # Check if the button was clicked
                                 if play_button.collidepoint(mouse_pos):
                                     game.start_game() # Set start to True when clicked
-                                
-                            
+                                                            
                             if not game.start: # till game is started
                                 continue
                             

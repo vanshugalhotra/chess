@@ -7,6 +7,8 @@ from dragger import Dragger
 from piece import Piece
 from player import Player
 import time
+from sound import Sound
+import os
 
 class Game:
     
@@ -131,31 +133,33 @@ class Game:
                 pygame.draw.rect(surface, color, rect, width=3)
                 
     def display_message(self, screen, message):
-            font = pygame.font.SysFont('Arial', 80, bold=True)
-            msg = font.render(message, True, (255, 255, 255))  # White text
+        font = pygame.font.SysFont('Arial', 80, bold=True)
+        msg = font.render(message, True, (255, 255, 255))  # White text
 
-            # msg background dimensions
-            msg_rect = msg.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-            background_rect = pygame.Rect(
-                msg_rect.left - 20,  # Padding for background
-                msg_rect.top - 20,
-                msg_rect.width + 40,
-                msg_rect.height + 40
-            )
+        right_x_position = WIDTH + WIDTH_OFFSET - 200
 
-            # Draw background (e.g., dark blue)
-            pygame.draw.rect(screen, (0, 0, 128), background_rect, border_radius=10)
+        padding = 20
+        msg_rect = msg.get_rect()
+        background_rect = pygame.Rect(
+            right_x_position - msg_rect.width - 2 * padding,
+            HEIGHT - msg_rect.height - 2 * padding,
+            msg_rect.width + 2 * padding,
+            msg_rect.height + 2 * padding
+        )
 
-            # Add a border around the background (e.g., gold color)
-            pygame.draw.rect(screen, (255, 215, 0), background_rect, 5, border_radius=10)
+        # Draw background (e.g., dark blue) with border radius for rounded edges
+        pygame.draw.rect(screen, (0, 0, 128), background_rect, border_radius=10)
 
-            # Shadow effect (slightly offset black text)
-            shadow_msg = font.render(message, True, (0, 0, 0))
-            shadow_offset = 5
-            screen.blit(shadow_msg, shadow_msg.get_rect(center=(WIDTH // 2 + shadow_offset, HEIGHT // 2 + shadow_offset)))
+        pygame.draw.rect(screen, (255, 215, 0), background_rect, 5, border_radius=10)
 
-            # Draw the msg itself
-            screen.blit(msg, msg_rect)
+        shadow_offset = 5
+        shadow_msg = font.render(message, True, (0, 0, 0))  # Shadow text in black
+        shadow_msg_rect = shadow_msg.get_rect(bottomright=(right_x_position - padding + shadow_offset, HEIGHT - padding + shadow_offset))
+        screen.blit(shadow_msg, shadow_msg_rect)
+
+        # Draw the message itself in white
+        msg_rect = msg.get_rect(bottomright=(right_x_position - padding, HEIGHT - padding))
+        screen.blit(msg, msg_rect)
             
     def show_rightSide(self, surface):
         padding_left = 20
@@ -382,7 +386,6 @@ class Game:
             draw_material_indicator(self.board.material[0], pos_x1, pos_y1)
         elif self.board.material[1] > self.board.material[0]:  # Black has more material
             draw_material_indicator(self.board.material[1], pos_x2, pos_y1)
-            
         
         if self.constants.move_list:
             draw_move_list()
@@ -412,8 +415,11 @@ class Game:
             self.black.start_timer()
         
     def start_game(self):
-        self.start = True
-        self.current_player.start_timer()
+        if not self.start:
+            self.start = True
+            self.current_player.start_timer()
+        sound = Sound(os.path.join('assets/sounds/move.wav'))
+        sound.play()
     
     def next_turn(self):       
         

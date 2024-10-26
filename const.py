@@ -33,7 +33,7 @@ class Constants:
 # todo: Checkmate ✅
 # todo: Stalemate bug
 # todo: Clock ✅
-# todo: move list
+# todo: move list scrollbar bug 
 # todo: winner banner ✅
 # todo: FEN Parser
 # todo: UCI Protocol
