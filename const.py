@@ -1,3 +1,10 @@
+NAME = "Chess"
+VERSION = "1.0.0"
+AUTHOR = "Vanshu Galhotra"
+
+ENGINE = "ਉਸਤਾਦ ਜੀ"
+
+
 # screen dimensions
 WIDTH = 700
 HEIGHT = 700
@@ -41,19 +48,22 @@ class Constants:
 
 # todo: Check Effect  ✅
 # todo: Checkmate ✅
-# todo: Stalemate bug
 # todo: Clock ✅
-# todo: move list scrollbar bug 
 # todo: winner banner ✅
 # todo: FEN Parser
 # todo: UCI Protocol
 # todo : MENU BAR
 # todo: flipping sides
-# todo: promotion bug fix ✅
 # todo: take back moves
 # todo: material count ✅
 # todo: fiftyMove
 # todo:  3 rep ✅
+
+# todo: promotion bug fix ✅
 # todo: bug fix in engine (makemove -> clearPiece) ✅
 # todo: bug fix: clock time for engine ✅
-# todo: bug fix: valid knight moves
+# todo: bug fix: valid knight moves ✅
+# todo: timeout bug fix
+# todo: move list scrollbar bug 
+# todo: Stalemate bug
+
