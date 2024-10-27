@@ -389,7 +389,7 @@ class Game:
         initial_time = 600
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
-        self.player2 = Player("Prem Pal", "prem.png", initial_time=initial_time)
+        self.player2 = Player("Inderpreet", "prem.png", initial_time=initial_time)
         self.black = self.player2
         self.engine = Player("Ustaad Ji", "ustaad.png", initial_time=initial_time)
         self.current_player = self.white
