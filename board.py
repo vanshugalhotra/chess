@@ -268,7 +268,6 @@ class Board:
                 
                 if Square.in_range(possible_move_row, possible_move_col):
                     if self.squares[possible_move_row][possible_move_col].isempty_or_rival(piece.color):
-                        
                         # create new move
                         initial = Square(row,col)
                         final_piece = self.squares[possible_move_row][possible_move_col].piece
@@ -280,7 +279,7 @@ class Board:
                         if wannaCheck:
                             if not self.in_check(piece, move):
                                 piece.add_move(move)
-                            else: break
+                            else: continue
                         else:
                             piece.add_move(move)
                                 

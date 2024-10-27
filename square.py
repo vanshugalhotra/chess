@@ -12,6 +12,11 @@ class Square:
         
     def __eq__(self, other):
         return self.row == other.row and self.col == other.col
+    
+    def __str__(self):
+        file = chr(self.col + ord('a'))
+        rank = 8 - self.row
+        return f'{file}{rank}'
         
     def has_piece(self):
         return self.piece != None
