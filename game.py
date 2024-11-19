@@ -386,6 +386,7 @@ class Game:
         self.start = False
         self.engine_mode = False
         
+    
         initial_time = 600
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)

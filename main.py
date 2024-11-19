@@ -5,20 +5,23 @@ from game import Game
 from square import Square
 from move import Move
 from board import Board
-from engine import constants, uci, init, pvtable
+
+from pychess_engine import Engine
+
+import threading
+
 import copy
 import time
 from piece import *
-import threading
 
 import traceback
 
 log_file = open('error.log', 'w')
-# original_stdout = sys.stdout
 original_stderr = sys.stderr
 
-# sys.stdout = log_file
 sys.stderr = log_file
+
+_movestogo = 40
 
 class Main: 
     def __init__(self):
@@ -28,13 +31,11 @@ class Main:
         self.game = Game(surface=self.screen)
         self.screen.fill(BACKGROUND)  
 
-        self.engine_board = constants.Board()
-        self.engine_info = constants.SEARCHINFO()
+        # engine things
+        self.engine = Engine(elo=1500)
 
         self.engine_running = False
         self.bestMove = None
-        init.AllInit()
-        pvtable.InitPvTable(self.engine_board.PvTable)
     
     def mainloop(self):
         
@@ -228,6 +229,7 @@ class Main:
                 print("Check Error LOG")
     
     def move_engine(self):
+        global _movestogo
         if(self.bestMove):
             initial_row, initial_col = Square.parseSquare(self.bestMove[0:2])
             final_row, final_col = Square.parseSquare(self.bestMove[2:])
@@ -236,7 +238,6 @@ class Main:
             initial = Square(initial_row, initial_col)
             final_piece = self.game.board.squares[final_row][final_col].piece
             final = Square(final_row, final_col, final_piece)
-            
             
             move = Move(initial, final)
             piece = copy.deepcopy(self.game.board.squares[initial_row][initial_col].piece)
@@ -252,29 +253,24 @@ class Main:
             return
         
         currentFen = self.game.board.getFEN()
-        command = f'position fen {currentFen}'
+        self.engine.load_fen(fen=currentFen)
         
-        uci.ParsePosition(command, self.engine_board)
-        
-        # command = f'go wtime 320000 btime 300000 winc 20000 binc 20000'
-        depth = 6
-        if self.game.constants.ply < 10:
-            depth = 5
-        elif self.game.constants.ply >= 10 and self.game.constants.ply <= 60:
-            depth = 6
-        else:
-            depth = 8
-            
         wtime = self.game.white.time * 1000
         btime = self.game.black.time * 1000
-        movestogo = 30
         
-        command = f'go depth {depth} wtime {wtime} btime {btime} movestogo {movestogo}'
-        print(command)
+        if self.game.constants.next_player == "white":
+            _time = wtime
+        else:
+            _time = btime
+            
+        # _movestogo -= 1
+        _movetime = min(12000, _time // _movestogo)
         
+        # getting best move from the ENGINE
         def calculate_best_move():
-            self.bestMove = uci.ParseGo(command, self.engine_info, self.engine_board)
-        
+            self.bestMove = self.engine.best_move()
+            # self.bestMove = ""
+            
         bestmove_thread = threading.Thread(target=calculate_best_move)
         self.engine_running = True
         bestmove_thread.start()
