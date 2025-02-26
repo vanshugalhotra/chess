@@ -7,8 +7,9 @@ from dragger import Dragger
 from piece import Piece
 from player import Player
 import time
-from sound import Sound
 import os
+
+from utils import Sound
 
 class Position:
     def __init__(self, x, y):

@@ -3,7 +3,7 @@ from square import Square
 from piece import *
 from move import Move
 import copy
-from sound import Sound
+from utils import Sound
 import os
 
 class Board:
@@ -529,7 +529,6 @@ class Board:
         return not Board.checkmate
     # starting with _ represents them as private methods
     def _create(self):
-        
         for row in range(ROWS):
             for col in range(COLS):
                 self.squares[row][col] = Square(row, col)

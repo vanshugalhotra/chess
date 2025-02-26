@@ -1,8 +1,7 @@
 import pygame
 import os
 
-from sound import Sound
-from theme import Theme
+from utils import Sound, Theme
 
 class Config:
     
@@ -16,7 +15,6 @@ class Config:
         self.font = pygame.font.SysFont('monospace', 18, bold=True)
         
         self.move_sound = Sound(os.path.join('assets/sounds/move.wav'))
-        
         self.capture_sound = Sound(os.path.join('assets/sounds/capture.wav'))
         
     
