@@ -4,7 +4,7 @@ from const import *
 from pychess_engine import Engine
 
 from gui import GameWindow
-from game import Square, Move, Board
+from game import Square, Move, Board, EventHandler
 
 import threading
 
@@ -27,7 +27,9 @@ class Main:
         pygame.display.set_caption(f"{NAME} {VERSION} - by {AUTHOR}\t\tEngine {VERSION} ( {ENGINE} ) - by {AUTHOR}")
         self.game = GameWindow(surface=self.screen)
         self.screen.fill(BACKGROUND)  
-
+        
+        self.event_handler = EventHandler(game=self.game, screen=self.screen)
+        
         # engine things
         self.engine = Engine(elo=1500)
 
@@ -55,6 +57,7 @@ class Main:
                 game.show_hover(screen)
                 
                 play_button = game.render_right_side()
+                self.event_handler.set_play_button(play_button=play_button)
                 
                 if dragger.dragging:
                     dragger.update_blit(screen)
@@ -75,7 +78,8 @@ class Main:
                 if self.game.current_player.time <= 0:
                     self.game.winner = self.game.black if self.game.current_player == self.game.black else self.game.white
                     game.display_message(screen, "Timeout!!")
-                                                        
+                             
+                """                          
                 # event handling
                 for event in pygame.event.get():
                     if not Board.checkmate and not Board.repetition:
@@ -206,6 +210,9 @@ class Main:
                         pygame.quit()
                         sys.exit()
                 
+                """
+                
+                self.event_handler.handle_events()
                 if(game.current_player == game.black and self.game.engine_mode):
                     # draw or show methods
                     game.show_chess_board(screen)
@@ -266,7 +273,6 @@ class Main:
         # getting best move from the ENGINE
         def calculate_best_move():
             self.bestMove = self.engine.best_move()
-            # self.bestMove = ""
             
         bestmove_thread = threading.Thread(target=calculate_best_move)
         self.engine_running = True
