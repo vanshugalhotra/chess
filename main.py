@@ -1,12 +1,13 @@
 import pygame
 import sys
 from const import *
-from game import Game
 from square import Square
 from move import Move
 from board import Board
 
 from pychess_engine import Engine
+
+from gui import GameWindow
 
 import threading
 
@@ -28,7 +29,7 @@ class Main:
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH+WIDTH_OFFSET, HEIGHT+HEIGHT_OFFSET), pygame.DOUBLEBUF)
         pygame.display.set_caption(f"{NAME} {VERSION} - by {AUTHOR}\t\tEngine {VERSION} ( {ENGINE} ) - by {AUTHOR}")
-        self.game = Game(surface=self.screen)
+        self.game = GameWindow(surface=self.screen)
         self.screen.fill(BACKGROUND)  
 
         # engine things

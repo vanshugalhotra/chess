@@ -3,7 +3,7 @@ import os
 
 from utils import Sound, Theme
 
-class Config:
+class Themes:
     
     def __init__(self):
         self.themes = []

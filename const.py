@@ -67,3 +67,39 @@ class Constants:
 # todo: move list scrollbar bug 
 # todo: Stalemate bug
 
+"""
+chess/
+│
+├── assets/                # No __init__.py needed (not a Python package)
+│   └── pieces/            # No __init__.py needed
+│
+├── src/                   # No __init__.py needed (unless you want to import from src)
+│   ├── game/              # Add __init__.py
+│   │   ├── __init__.py    # Make game a package
+│   │   ├── board.py
+│   │   ├── move.py
+│   │   ├── piece.py
+│   │   ├── player.py
+│   │   └── square.py
+│   │
+│   ├── gui/               # Add __init__.py
+│   │   ├── __init__.py    # Make gui a package
+│   │   ├── window.py
+│   │   ├── components/    # Add __init__.py
+│   │   │   ├── __init__.py  # Make components a package
+│   │   │   ├── button.py
+│   │   │   └── clock.py
+│   │   ├── themes.py
+│   │   └── dragger.py
+│   │
+│   ├── utils/             # Add __init__.py
+│   │   ├── __init__.py    # Make utils a package
+│   │   ├── color.py
+│   │   ├── sound.py
+│   │   └── const.py
+│   │
+│   └── main.py            # No __init__.py needed (not a package)
+│
+└── README.md
+
+"""
