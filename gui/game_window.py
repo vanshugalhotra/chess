@@ -1,15 +1,13 @@
 import pygame
 from const import *
-from board import Board
-from square import Square
-from piece import Piece
-from player import Player
 import time
 import os
 
+
 from utils import Sound, Position
 from gui import RightPanel,Themes, Dragger
-        
+from game import Board, Piece, Move, Player, Square
+
 class GameWindow:
     def __init__(self, surface):
         self.hovered_sqr = None
@@ -24,7 +22,7 @@ class GameWindow:
         self.engine_mode = False
         
     
-        initial_time = 600
+        initial_time = INITIAL_TIME
         
         self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
         self.player2 = Player("Inderpreet", "prem.png", initial_time=initial_time)
@@ -39,7 +37,7 @@ class GameWindow:
         self.right_side = RightPanel(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
     # render methods
-    def show_bg(self, surface):
+    def show_chess_board(self, surface):
         theme = self.config.theme
         for row in range(ROWS):
             for col in range(COLS):

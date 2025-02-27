@@ -1,19 +1,15 @@
 import pygame
 import sys
 from const import *
-from square import Square
-from move import Move
-from board import Board
-
 from pychess_engine import Engine
 
 from gui import GameWindow
+from game import Square, Move, Board
 
 import threading
 
 import copy
 import time
-from piece import *
 
 import traceback
 
@@ -51,7 +47,7 @@ class Main:
             
             try:
                 self.screen.fill(BACKGROUND)  
-                game.show_bg(screen)
+                game.show_chess_board(screen)
                 game.show_last_move(screen)
                 game.show_check(screen)
                 game.show_moves(screen)
@@ -119,7 +115,7 @@ class Main:
                                         dragger.drag_piece(piece)
                                         
                                         #show methods
-                                        game.show_bg(screen)
+                                        game.show_chess_board(screen)
                                         game.show_check(screen)
                                         game.show_last_move(screen)
                                         game.show_moves(screen)
@@ -134,7 +130,7 @@ class Main:
                             if dragger.dragging: # mouse motion is active everytime we move mouse, we need to drag a piece only if dragging is True
                                 dragger.update_mouse(event.pos) # first update the mouse position,
                                 
-                                game.show_bg(screen)
+                                game.show_chess_board(screen)
                                 game.show_check(screen)
                                 game.show_last_move(screen)
                                 game.show_moves(screen)
@@ -166,7 +162,7 @@ class Main:
                                     # play sound
                                     game.play_sound(captured)
                                     # draw or show methods
-                                    game.show_bg(screen)
+                                    game.show_chess_board(screen)
                                     game.show_last_move(screen)
                                     game.show_check(screen)
                                     game.show_pieces(screen)
@@ -212,7 +208,7 @@ class Main:
                 
                 if(game.current_player == game.black and self.game.engine_mode):
                     # draw or show methods
-                    game.show_bg(screen)
+                    game.show_chess_board(screen)
                     game.show_last_move(screen)
                     game.show_check(screen)
                     game.show_pieces(screen) 

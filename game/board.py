@@ -1,10 +1,12 @@
 from const import *
-from square import Square
-from piece import *
-from move import Move
 import copy
 from utils import Sound
 import os
+
+from .move import Move
+from .player import Player
+from .piece import *
+from .square import Square
 
 class Board:
     checkmate = False
@@ -497,8 +499,7 @@ class Board:
         fen += f' {str(self.constants.ply // 2 + self.constants.ply % 2)}'
         
         return fen
-        
-        
+          
     def is_threefold_repetition(self):
         fen_counts = {}
 
@@ -558,12 +559,3 @@ class Board:
         # King
         self.squares[row_other][4] = Square(row_other, 4, King(color))
     
-    def _print_board(self):
-        for row in range(ROWS):
-            for col in range(COLS):
-                if self.squares[row][col].has_piece():
-                    print(self.squares[row][col].piece.get_notation(), end=" ")
-                else:
-                    print('.', end=" ")
-                    
-            print()

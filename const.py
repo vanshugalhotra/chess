@@ -35,6 +35,9 @@ SKY_BLUE = "#3498DB"
 YELLOW = "#F1C40F"
 LIGHT_GRAY = "#F0F0F0"
 
+
+INITIAL_TIME = 600
+
 class Constants:
     def __init__(self):
         self.next_player = "white"
@@ -70,35 +73,35 @@ class Constants:
 """
 chess/
 │
-├── assets/                # No __init__.py needed (not a Python package)
-│   └── pieces/            # No __init__.py needed
+├── assets/                
+│   └── pieces/            
 │
-├── src/                   # No __init__.py needed (unless you want to import from src)
-│   ├── game/              # Add __init__.py
-│   │   ├── __init__.py    # Make game a package
+├── src/                  
+│   ├── game/              
+│   │   ├── __init__.py    
 │   │   ├── board.py
 │   │   ├── move.py
 │   │   ├── piece.py
 │   │   ├── player.py
 │   │   └── square.py
 │   │
-│   ├── gui/               # Add __init__.py
-│   │   ├── __init__.py    # Make gui a package
+│   ├── gui/               
+│   │   ├── __init__.py   
 │   │   ├── window.py
-│   │   ├── components/    # Add __init__.py
-│   │   │   ├── __init__.py  # Make components a package
+│   │   ├── components/   
+│   │   │   ├── __init__.py 
 │   │   │   ├── button.py
 │   │   │   └── clock.py
 │   │   ├── themes.py
 │   │   └── dragger.py
 │   │
-│   ├── utils/             # Add __init__.py
-│   │   ├── __init__.py    # Make utils a package
+│   ├── utils/            
+│   │   ├── __init__.py    
 │   │   ├── color.py
 │   │   ├── sound.py
 │   │   └── const.py
 │   │
-│   └── main.py            # No __init__.py needed (not a package)
+│   └── main.py           
 │
 └── README.md
 
