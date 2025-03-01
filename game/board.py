@@ -4,7 +4,6 @@ from utils import Sound
 import os
 
 from .move import Move
-from .player import Player
 from .piece import *
 from .square import Square
 
@@ -24,7 +23,7 @@ class Board:
         
         self.material = [39, 39] # white, black
         
-    def move(self, piece, move, testing=False):
+    def make_move(self, piece, move, testing=False):
         initial = move.initial
         final = move.final   
         
@@ -39,9 +38,6 @@ class Board:
         
         if not testing: # if an actual move is made
             self.constants.fiftyMove += 1 # we increment the fiftyMove Counter
-            
-            # if(self.check_stalemate(piece.color)):
-            #     Board.stalemate = True
                 
             if(self.is_threefold_repetition()):
                 Board.repetition = True
@@ -54,7 +50,7 @@ class Board:
                 temp_piece = copy.deepcopy(piece)
                 temp_board = copy.deepcopy(self) # cloning our board
                 
-                temp_board.move(temp_piece, move, testing=True)
+                temp_board.make_move(temp_piece, move, testing=True)
                 possibleMoves = 0
                 for r in range(ROWS):
                     for c in range(COLS):
@@ -123,7 +119,7 @@ class Board:
                 diff = final.col - initial.col
                 rook = piece.left_rook if diff < 0 else piece.right_rook
                 castle = "Q" if diff < 0 else "K"
-                self.move(rook, rook.moves[-1]) # need to move the rook 
+                self.make_move(rook, rook.moves[-1]) # need to move the rook 
                 
             # updating king KingSquares
             if not testing:
@@ -157,10 +153,7 @@ class Board:
         # clear valid moves
         piece.clear_moves()
         self.last_move = move  
-        
-    def valid_move(self, piece, move):
-        return move in piece.moves
-                
+                        
     def castling(self,initial, final):
         return abs(initial.col - final.col) == 2 # if the king moved by 2 squares
             
@@ -168,7 +161,7 @@ class Board:
         temp_piece = copy.deepcopy(piece)
         temp_board = copy.deepcopy(self) # cloning our board
         
-        temp_board.move(temp_piece, move, testing=True)
+        temp_board.make_move(temp_piece, move, testing=True)
         
         for row in range(ROWS):
             for col in range(COLS):
@@ -499,7 +492,7 @@ class Board:
         fen += f' {str(self.constants.ply // 2 + self.constants.ply % 2)}'
         
         return fen
-          
+
     def is_threefold_repetition(self):
         fen_counts = {}
 

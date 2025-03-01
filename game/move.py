@@ -1,6 +1,5 @@
 
 class Move:
-    
     def __init__(self, initial, final):
         # these are squares
         self.initial = initial
@@ -17,6 +16,8 @@ class Move:
     def __eq__(self, other):
         return self.initial == other.initial and self.final == other.final
     
+    def is_valid(self, piece):
+        return self in piece.moves
     
     @staticmethod
     def algebraic_notation(piece, move, isCapture=False, isCheck=False, isCheckMate=False, isPromotion=False, isEnPas=False, castle=""):

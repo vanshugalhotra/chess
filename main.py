@@ -24,7 +24,7 @@ class Main:
         # engine things
         self.engine = ChessEngine(game=self.game)
         
-        self.bestMove = None
+        self.userMove = None
     
     def mainloop(self):
         
@@ -38,12 +38,8 @@ class Main:
             
             try:
                 self.screen.fill(BACKGROUND)  
-                game.show_chess_board(screen)
-                game.show_last_move(screen)
-                game.show_check(screen)
-                game.show_moves(screen)
-                game.show_pieces(screen)
-                game.show_hover(screen)
+                
+                game.update_screen(screen)
                 
                 play_button = game.render_right_side()
                 self.event_handler.set_play_button(play_button=play_button)
@@ -72,14 +68,11 @@ class Main:
                 
                 if(game.current_player == game.black and self.game.engine_mode):
                     # draw or show methods
-                    game.show_chess_board(screen)
-                    game.show_last_move(screen)
-                    game.show_check(screen)
-                    game.show_pieces(screen) 
+                    game.update_screen(screen)
                     pygame.display.update()
                     clock.tick(60)
                     
-                    self.bestMove = self.engine.calculate_best_move()
+                    self.engine.make_best_move()
                     
                 pygame.display.update()
                 clock.tick(60)

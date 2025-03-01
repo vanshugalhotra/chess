@@ -75,9 +75,9 @@ class EventHandler:
             move = Move(Square(self.dragger.initial_row, self.dragger.initial_col),
                         Square(released_row, released_col))
             
-            if self.board.valid_move(self.dragger.piece, move):
+            if move.is_valid(self.dragger.piece):
                 captured = self.board.squares[released_row][released_col].has_piece()
-                self.board.move(self.dragger.piece, move)
+                self.board.make_move(self.dragger.piece, move)
                 self.game.play_sound(captured)
                 self.update_board()
                 self.game.next_turn()
@@ -99,8 +99,4 @@ class EventHandler:
             self.game.start_game()
     
     def update_board(self):
-        self.game.show_chess_board(self.screen)
-        self.game.show_check(self.screen)
-        self.game.show_last_move(self.screen)
-        self.game.show_moves(self.screen)
-        self.game.show_pieces(self.screen)
+        self.game.update_screen(self.screen)

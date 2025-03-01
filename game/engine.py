@@ -1,7 +1,4 @@
 from pychess_engine import Engine
-from .move import Move
-from .square import Square
-import copy
 import threading
 
 class ChessEngine:
@@ -12,21 +9,9 @@ class ChessEngine:
         self.movestogo = movestogo
         self.engine_running = False
         
-    def calculate_best_move(self):
+    def make_best_move(self):
         if(self.bestMove):
-            initial_row, initial_col = Square.parseSquare(self.bestMove[0:2])
-            final_row, final_col = Square.parseSquare(self.bestMove[2:])
-            
-            # create new move
-            initial = Square(initial_row, initial_col)
-            final_piece = self.game.board.squares[final_row][final_col].piece
-            final = Square(final_row, final_col, final_piece)
-            
-            move = Move(initial, final)
-            piece = copy.deepcopy(self.game.board.squares[initial_row][initial_col].piece)
-            
-            self.game.board.calc_moves(piece, initial_row, initial_col)
-            self.game.board.move(piece, move)
+            self.game.make_move(self.bestMove)
             self.bestMove = None # resetting the bestMove
             self.game.next_turn()
             self.engine_running = False
@@ -50,10 +35,10 @@ class ChessEngine:
         _movetime = min(12000, _time // self.movestogo)
         
         # getting best move from the ENGINE
-        def calculate_best_move():
+        def calc_best_move():
             self.bestMove = self.engine.best_move()
             
-        bestmove_thread = threading.Thread(target=calculate_best_move)
+        bestmove_thread = threading.Thread(target=calc_best_move)
         self.engine_running = True
         bestmove_thread.start()
         

@@ -1,8 +1,7 @@
 import pygame
 from const import *
-import time
 import os
-
+import copy
 
 from utils import Sound, Position
 from gui import RightPanel,Themes, Dragger
@@ -20,7 +19,6 @@ class GameWindow:
         
         self.start = False
         self.engine_mode = False
-        
     
         initial_time = INITIAL_TIME
         
@@ -37,6 +35,15 @@ class GameWindow:
         self.right_side = RightPanel(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
     # render methods
+    
+    def update_screen(self, surface):
+        self.show_chess_board(surface)
+        self.show_last_move(surface)
+        self.show_check(surface)
+        self.show_moves(surface)
+        self.show_pieces(surface)
+        self.show_hover(surface)
+    
     def show_chess_board(self, surface):
         theme = self.config.theme
         for row in range(ROWS):
@@ -229,3 +236,17 @@ class GameWindow:
         Piece.KingInCheck = False
         Piece.KingSquares = [(7, 4), (0, 4)] # white, black
 
+    def make_move(self, algebraic_move: str):
+        initial_row, initial_col = Square.parseSquare(algebraic_move[0:2])
+        final_row, final_col = Square.parseSquare(algebraic_move[2:])
+        
+        # create new move
+        initial = Square(initial_row, initial_col)
+        final_piece = self.board.squares[final_row][final_col].piece
+        final = Square(final_row, final_col, final_piece)
+        
+        move = Move(initial, final)
+        piece = copy.deepcopy(self.board.squares[initial_row][initial_col].piece)
+        
+        self.board.calc_moves(piece, initial_row, initial_col)
+        self.board.make_move(piece, move)
