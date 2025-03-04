@@ -26,7 +26,7 @@ class ChessClient:
             try:
                 data = self.client.recv(1024).decode('utf-8')
                 if data.startswith("player_id:"):
-                    self.player_id = data.split(':')[1]
+                    self.player_id = data.split(':')[1]  # "white" or "black"
                     print(f"You are Player {self.player_id}.")
                 elif data == "not_your_turn":
                     print("It's not your turn.")

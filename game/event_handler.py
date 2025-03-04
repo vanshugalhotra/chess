@@ -51,6 +51,9 @@ class EventHandler:
         if not self.game.start:
             return
         
+        if self.client.player_id != self.game.constants.next_player:
+            return
+        
         self.dragger.update_mouse(event.pos)
         clicked_row, clicked_col = self.dragger.mouseY // SQSIZE, self.dragger.mouseX // SQSIZE
         

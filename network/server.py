@@ -10,7 +10,7 @@ class ChessServer:
         self.server.listen(2)  # Allow only 2 players to connect
         self.clients = []  # List to store client connections
         self.player_ids = {}  # Dictionary to map player IDs to clients
-        self.current_turn = "0"  # Player 0 (White) starts first
+        self.current_turn = "white"  # Player 0 (White) starts first
         self.game_over = False
 
     def broadcast(self, message, sender=None):
@@ -24,7 +24,7 @@ class ChessServer:
 
     def handle_client(self, client):
         """Handle communication with a connected client."""
-        player_id = str(len(self.player_ids))  # Assign player ID (0 or 1)
+        player_id = "white" if len(self.player_ids) == 0 else "black"  # Assign "white" or "black"
         self.player_ids[client] = player_id
         client.send(f"player_id:{player_id}".encode('utf-8'))  # Send player ID to client
 
@@ -40,7 +40,7 @@ class ChessServer:
                 if player_id == self.current_turn:
                     print(f"Player {player_id} made move: {move}")
                     self.broadcast(data, sender=client)  # Send move to other player
-                    self.current_turn = "1" if self.current_turn == "0" else "0"  # Switch turns
+                    self.current_turn = "black" if self.current_turn == "white" else "white"  # Switch turns
                 else:
                     client.send("not_your_turn".encode('utf-8'))  # Notify client it's not their turn
             except Exception as e:
@@ -61,7 +61,7 @@ class ChessServer:
             self.clients.append(client)
             threading.Thread(target=self.handle_client, args=(client,)).start()
 
-        print("Game started. Player 0 (White) goes first.")
+        print("Game started. Player (White) goes first.")
 
 if __name__ == "__main__":
     server = ChessServer()

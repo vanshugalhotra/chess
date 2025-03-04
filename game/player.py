@@ -14,7 +14,7 @@ class Player:
             
     def start_timer(self):
         self.running = True
-        self.timer_thread = threading.Thread(target=self.update_timer)
+        self.timer_thread = threading.Thread(target=self.update_timer, daemon=True)
         self.timer_thread.start()
         
     def stop_timer(self):
@@ -25,9 +25,8 @@ class Player:
             
     def update_timer(self):
         while self.running and self.time > 0:
-            update_time = 1
-            time.sleep(update_time)
-            self.time -= update_time
+            time.sleep(1)
+            self.time -= 1
             
             if self.time <= 0:
                 self.running = False
