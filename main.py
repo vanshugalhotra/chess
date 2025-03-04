@@ -31,7 +31,6 @@ class Main:
         game = self.game
         screen = self.screen
         dragger = self.game.dragger
-
         clock = pygame.time.Clock()
         
         while True:

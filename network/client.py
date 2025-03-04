@@ -1,66 +1,50 @@
 import socket
 import threading
-import json
-
-HOST = '127.0.0.1'  
-PORT = 65432        
 
 class ChessClient:
-    def __init__(self):
-        """Initialize client and connect to server."""
+    def __init__(self, host='127.0.0.1', port=65432):
+        self.host = host
+        self.port = port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((HOST, PORT))
-        
-        # Receive assigned player ID
-        data = self.client.recv(1024).decode()
-        self.player_id = json.loads(data)["player_id"]
-        
-        self.my_turn = (self.player_id == 1)  # White starts first
-        color = "White" if self.player_id == 1 else "Black"
-        print(f"You are Player {self.player_id} ({color}). Waiting for your turn.")
+        self.player_id = None
+        self.connected = False
+        self.latest_move = None  # Store the latest move received from the server
 
-        # Start listening for opponent's moves
-        threading.Thread(target=self.receive_moves, daemon=True).start()
+    def connect(self):
+        """Connect to the server."""
+        try:
+            self.client.connect((self.host, self.port))
+            self.connected = True
+            print("Connected to the server.")
+            threading.Thread(target=self.receive_messages).start()
+        except Exception as e:
+            print(f"Failed to connect to the server: {e}")
 
-    def send_move(self, move):
-        """Send a move if it's the player's turn."""
-        if not self.my_turn:
-            print("Not your turn! Wait for the opponent.")
-            return
-
-        move_data = json.dumps({"player_id": self.player_id, "move": move})
-        self.client.sendall(move_data.encode())
-
-        # Wait for opponent's move
-        self.my_turn = False
-
-    def receive_moves(self):
-        """Receive opponent's moves and update turn."""
-        while True:
+    def receive_messages(self):
+        """Receive messages from the server."""
+        while self.connected:
             try:
-                data = self.client.recv(1024).decode()
-                if data:
-                    move_data = json.loads(data)
-
-                    if "error" in move_data:
-                        print(move_data["error"])  # Show error if move was out of turn
-                        continue
-
-                    color = "White" if move_data["player_id"] == 1 else "Black"
-                    print(f"{color} ({move_data['player_id']}) moved: {move_data['move']}")
-
-                    # It's now my turn
-                    if move_data["player_id"] != self.player_id:
-                        self.my_turn = True
-                        print("Your turn!")
-
-            except (ConnectionResetError, json.JSONDecodeError):
-                print("Connection lost.")
+                data = self.client.recv(1024).decode('utf-8')
+                if data.startswith("player_id:"):
+                    self.player_id = data.split(':')[1]
+                    print(f"You are Player {self.player_id}.")
+                elif data == "not_your_turn":
+                    print("It's not your turn.")
+                else:
+                    move, player_id = data.split(':')
+                    print(f"Player {player_id} made move: {move}")
+                    self.latest_move = move  # Store the latest move
+            except Exception as e:
+                print(f"Connection lost: {e}")
+                self.connected = False
                 break
 
-if __name__ == "__main__":
-    player = ChessClient()
-    
-    while True:
-        move = input("Enter move (e.g., e2e4): ")
-        player.send_move(move)
+    def send_move(self, move):
+        """Send a move to the server."""
+        if self.connected:
+            try:
+                message = f"{move}:{self.player_id}"
+                self.client.send(message.encode('utf-8'))
+            except Exception as e:
+                print(f"Failed to send move: {e}")
+

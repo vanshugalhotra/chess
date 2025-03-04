@@ -1,72 +1,68 @@
 import socket
 import threading
-import json
-import random
 
-HOST = '127.0.0.1'  
-PORT = 65432        
-clients = {} 
-turn = None  
+class ChessServer:
+    def __init__(self, host='127.0.0.1', port=65432):
+        self.host = host
+        self.port = port
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind((self.host, self.port))
+        self.server.listen(2)  # Allow only 2 players to connect
+        self.clients = []  # List to store client connections
+        self.player_ids = {}  # Dictionary to map player IDs to clients
+        self.current_turn = "0"  # Player 0 (White) starts first
+        self.game_over = False
 
-def handle_client(conn, player_id):
-    global turn
+    def broadcast(self, message, sender=None):
+        """Send a message to all connected clients except the sender."""
+        for client in self.clients:
+            if client != sender:
+                try:
+                    client.send(message.encode('utf-8'))
+                except:
+                    self.clients.remove(client)
 
-    print(f"Player {player_id} connected.")
+    def handle_client(self, client):
+        """Handle communication with a connected client."""
+        player_id = str(len(self.player_ids))  # Assign player ID (0 or 1)
+        self.player_ids[client] = player_id
+        client.send(f"player_id:{player_id}".encode('utf-8'))  # Send player ID to client
 
-    while True:
-        try:
-            data = conn.recv(1024).decode()
-            if not data:
+        print(f"Player {player_id} connected.")
+
+        while not self.game_over:
+            try:
+                data = client.recv(1024).decode('utf-8')
+                if not data:
+                    break
+
+                move, player_id = data.split(':')
+                if player_id == self.current_turn:
+                    print(f"Player {player_id} made move: {move}")
+                    self.broadcast(data, sender=client)  # Send move to other player
+                    self.current_turn = "1" if self.current_turn == "0" else "0"  # Switch turns
+                else:
+                    client.send("not_your_turn".encode('utf-8'))  # Notify client it's not their turn
+            except Exception as e:
+                print(f"Error: {e}")
                 break
 
-            move_data = json.loads(data)
+        client.close()
+        self.clients.remove(client)
+        print(f"Player {player_id} disconnected.")
+        if len(self.clients) == 0:
+            self.game_over = True
 
-            # Enforce turn-based gameplay
-            if move_data["player_id"] != turn:
-                conn.sendall(json.dumps({"error": "Not your turn!"}).encode())
-                continue
+    def start(self):
+        """Start the server and accept client connections."""
+        print("Server started. Waiting for players...")
+        while len(self.clients) < 2:
+            client, addr = self.server.accept()
+            self.clients.append(client)
+            threading.Thread(target=self.handle_client, args=(client,)).start()
 
-            print(f"Received move: {move_data}")
-
-            # Switch turn
-            turn = 1 if turn == 2 else 2
-
-            # Relay move to the other player
-            for client, pid in clients.items():
-                if client != conn:
-                    client.sendall(json.dumps(move_data).encode())
-
-        except (ConnectionResetError, json.JSONDecodeError):
-            break
-
-    print(f"Connection closed: Player {player_id}")
-    del clients[conn]
-    conn.close()
-
-def start_server():
-    global turn
-
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((HOST, PORT))
-    server.listen(2)
-    print(f"Server started on {HOST}:{PORT}, waiting for players...")
-
-    # Assign random colors
-    player_ids = [1, 2]  # 1 = White, 2 = Black
-    random.shuffle(player_ids)
-
-    while len(clients) < 2:
-        conn, addr = server.accept()
-        player_id = player_ids.pop()
-        clients[conn] = player_id
-
-        # Send assigned player ID
-        conn.sendall(json.dumps({"player_id": player_id}).encode())
-
-        threading.Thread(target=handle_client, args=(conn, player_id)).start()
-
-    # Set White (Player 1) to move first
-    turn = 1
+        print("Game started. Player 0 (White) goes first.")
 
 if __name__ == "__main__":
-    start_server()
+    server = ChessServer()
+    server.start()

@@ -145,10 +145,10 @@ class Board:
                     self.castlePerms = "-" + self.castlePerms[1:] # white king can't castle king side
             
         piece.moved = True
-        
+        alg_move = Move.algebraic_notation(piece, move, isCapture, isCheck, isCheckMate, isPromotion, isEnPas, castle)
         # adding move to the move list
         if not testing: # if actual move made
-            self.constants.move_list.append(Move.algebraic_notation(piece, move, isCapture, isCheck, isCheckMate, isPromotion, isEnPas, castle))
+            self.constants.move_list.append(alg_move)
         
         # clear valid moves
         piece.clear_moves()

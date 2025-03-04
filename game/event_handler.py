@@ -2,6 +2,7 @@ import pygame
 import sys
 from const import SQSIZE
 from game import Move, Square
+from network import ChessClient
 
 class EventHandler:
     def __init__(self, game, screen):
@@ -10,11 +11,15 @@ class EventHandler:
         self.dragger = self.game.dragger
         self.screen = screen
         self.play_button = None
+        self.client = ChessClient()
+        
+        self.client.connect()
 
     def set_play_button(self, play_button):
         self.play_button = play_button
         
     def handle_events(self):
+        self.check_for_opponent_move()
         for event in pygame.event.get():
             if not self.board.checkmate and not self.board.repetition:
                 
@@ -30,6 +35,7 @@ class EventHandler:
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+                
     
     def handle_mouse_button_down(self, event):
         if event.button == 4:
@@ -74,12 +80,18 @@ class EventHandler:
             
             move = Move(Square(self.dragger.initial_row, self.dragger.initial_col),
                         Square(released_row, released_col))
+        
             
             if move.is_valid(self.dragger.piece):
                 captured = self.board.squares[released_row][released_col].has_piece()
                 self.board.make_move(self.dragger.piece, move)
                 self.game.play_sound(captured)
                 self.update_board()
+                
+                alg_move = move.initial.get_notation()
+                alg_move += move.final.get_notation()
+                self.client.send_move(alg_move)
+                
                 self.game.next_turn()
             else:
                 self.dragger.piece.clear_moves()
@@ -100,3 +112,20 @@ class EventHandler:
     
     def update_board(self):
         self.game.update_screen(self.screen)
+        
+        
+    def check_for_opponent_move(self):
+        """Check if an opponent's move has arrived and apply it."""
+        if self.client.connected:
+            # Fetch the latest move from the client
+            if hasattr(self.client, 'latest_move') and self.client.latest_move:
+                move_str = self.client.latest_move
+                print(f"Applying opponent's move: {move_str}")
+
+                # Apply the move to the game
+                self.game.make_move(move_str)
+                self.update_board()
+                self.game.next_turn()
+
+                # Clear the latest move to avoid reprocessing
+                self.client.latest_move = None

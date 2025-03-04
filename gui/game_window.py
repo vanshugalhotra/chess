@@ -236,6 +236,7 @@ class GameWindow:
         Piece.KingInCheck = False
         Piece.KingSquares = [(7, 4), (0, 4)] # white, black
 
+
     def make_move(self, algebraic_move: str):
         initial_row, initial_col = Square.parseSquare(algebraic_move[0:2])
         final_row, final_col = Square.parseSquare(algebraic_move[2:])
