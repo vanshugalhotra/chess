@@ -11,15 +11,21 @@ class EventHandler:
         self.dragger = self.game.dragger
         self.screen = screen
         self.play_button = None
-        self.client = ChessClient()
         
-        self.client.connect()
+        self.mode = 1 # single player - 1, multiplayer - 2
+        self.client = None
 
+    def connect_client(self):
+        self.mode = 2
+        self.client = ChessClient()
+        self.client.connect()
+        
     def set_play_button(self, play_button):
         self.play_button = play_button
         
     def handle_events(self):
-        self.check_for_opponent_move()
+        if(self.mode == 2):
+            self.check_for_opponent_move()
         for event in pygame.event.get():
             if not self.board.checkmate and not self.board.repetition:
                 
@@ -51,7 +57,7 @@ class EventHandler:
         if not self.game.start:
             return
         
-        if self.client.player_id != self.game.constants.next_player:
+        if self.mode == 2 and self.client.player_id != self.game.constants.next_player:
             return
         
         self.dragger.update_mouse(event.pos)
@@ -93,7 +99,9 @@ class EventHandler:
                 
                 alg_move = move.initial.get_notation()
                 alg_move += move.final.get_notation()
-                self.client.send_move(alg_move)
+                
+                if(self.mode == 2):
+                    self.client.send_move(alg_move)
                 
                 self.game.next_turn()
             else:
@@ -112,6 +120,8 @@ class EventHandler:
         elif event.key == pygame.K_p:
             self.game.display_message(self.screen, "Play!!")
             self.game.start_game()
+        elif event.key == pygame.K_c:
+            self.connect_client()
     
     def update_board(self):
         self.game.update_screen(self.screen)
