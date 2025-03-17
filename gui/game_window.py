@@ -50,34 +50,33 @@ class GameWindow:
         theme = self.config.theme
         for row in range(ROWS):
             for col in range(COLS):
-                # Calculate the row and column based on flip_board
-                render_row = 7 - row if self.flip_board else row
-                render_col = 7 - col if self.flip_board else col
-
-                color = theme.bg.light if ((render_row + render_col) & 1 == 0) else theme.bg.dark
+                frow = 7 - row if self.flip_board else row
+                fcol = 7 - col if self.flip_board else col 
+                
+                color = theme.bg.light if ((row + col) & 1 == 0) else theme.bg.dark
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect)
-                    
+                
                 # row coordinates
                 if col == 0:
-                    color = theme.bg.dark if (render_row % 2 == 0) else theme.bg.light
-                        
-                    # label
-                    lbl = self.config.font.render(str(ROWS - render_row), 1, color)
-                    lbl_pos = (5, 5 + row * SQSIZE)
-                        
-                    # blit
-                    surface.blit(lbl, lbl_pos)
+                    color = theme.bg.dark if (row % 2 == 0) else theme.bg.light
                     
+                    # label
+                    lbl = self.config.font.render(str(ROWS-frow), 1, color)
+                    lbl_pos = (5, 5+row*SQSIZE)
+                    
+                    #blit
+                    surface.blit(lbl, lbl_pos)
+                
                 # col coordinates
                 if row == 7:
-                    color = theme.bg.dark if ((render_row + render_col) % 2 == 0) else theme.bg.light 
-                        
+                    color = theme.bg.dark if ( (row + col) % 2 == 0) else theme.bg.light 
+                    
                     # label
-                    lbl = self.config.font.render(Square.get_alphacode(render_col), 1, color)
-                    lbl_pos = (col * SQSIZE + SQSIZE - 20, HEIGHT - 20)
-                        
-                    # blit
+                    lbl = self.config.font.render(Square.get_alphacode(fcol), 1, color)
+                    lbl_pos = (col*SQSIZE + SQSIZE - 20, HEIGHT - 20)
+                    
+                    #blit
                     surface.blit(lbl, lbl_pos)
 
     def show_pieces(self, surface):
