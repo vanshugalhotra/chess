@@ -16,10 +16,17 @@ class EventHandler:
         self.client = None
 
     def connect_client(self):
-        self.mode = 2
+        self.mode = 2  # Multiplayer mode
         self.client = ChessClient()
         self.client.connect()
-        
+        print(f"Player ID: {self.client.player_id}")
+
+        # Set flip_board based on player_id
+        if self.client.player_id == "black":
+            self.game.flip_board = True 
+        else:
+            self.game.flip_board = False  
+
     def set_play_button(self, play_button):
         self.play_button = play_button
         
@@ -63,6 +70,10 @@ class EventHandler:
         self.dragger.update_mouse(event.pos)
         clicked_row, clicked_col = self.dragger.mouseY // SQSIZE, self.dragger.mouseX // SQSIZE
         
+        # Calculate the row and column based on flip_board
+        if self.game.flip_board:
+            clicked_row, clicked_col = 7 - clicked_row, 7 - clicked_col
+        
         if Square.in_range(clicked_row, clicked_col):
             if self.board.squares[clicked_row][clicked_col].has_piece():
                 piece = self.board.squares[clicked_row][clicked_col].piece
@@ -87,9 +98,15 @@ class EventHandler:
             self.dragger.update_mouse(event.pos)
             released_row, released_col = self.dragger.mouseY // SQSIZE, self.dragger.mouseX // SQSIZE
             
-            move = Move(Square(self.dragger.initial_row, self.dragger.initial_col),
+            initial_row, initial_col = self.dragger.initial_row, self.dragger.initial_col
+            
+            if self.game.flip_board:
+                released_row, released_col = 7 - released_row, 7 - released_col
+                initial_row, initial_col = 7 - initial_row, 7 - initial_col
+            
+
+            move = Move(Square(initial_row, initial_col),
                         Square(released_row, released_col))
-        
             
             if move.is_valid(self.dragger.piece):
                 captured = self.board.squares[released_row][released_col].has_piece()

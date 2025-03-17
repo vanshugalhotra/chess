@@ -19,6 +19,8 @@ class GameWindow:
         
         self.start = False
         self.engine_mode = False
+        
+        self.flip_board = False
     
         initial_time = INITIAL_TIME
         
@@ -48,48 +50,54 @@ class GameWindow:
         theme = self.config.theme
         for row in range(ROWS):
             for col in range(COLS):
-                color = theme.bg.light if ((row + col) & 1 == 0) else theme.bg.dark
+                # Calculate the row and column based on flip_board
+                render_row = 7 - row if self.flip_board else row
+                render_col = 7 - col if self.flip_board else col
+
+                color = theme.bg.light if ((render_row + render_col) & 1 == 0) else theme.bg.dark
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect)
-                
+                    
                 # row coordinates
                 if col == 0:
-                    color = theme.bg.dark if (row % 2 == 0) else theme.bg.light
-                    
+                    color = theme.bg.dark if (render_row % 2 == 0) else theme.bg.light
+                        
                     # label
-                    lbl = self.config.font.render(str(ROWS-row), 1, color)
-                    lbl_pos = (5, 5+row*SQSIZE)
-                    
-                    #blit
+                    lbl = self.config.font.render(str(ROWS - render_row), 1, color)
+                    lbl_pos = (5, 5 + row * SQSIZE)
+                        
+                    # blit
                     surface.blit(lbl, lbl_pos)
-                
+                    
                 # col coordinates
                 if row == 7:
-                    color = theme.bg.dark if ( (row + col) % 2 == 0) else theme.bg.light 
-                    
-                    
+                    color = theme.bg.dark if ((render_row + render_col) % 2 == 0) else theme.bg.light 
+                        
                     # label
-                    lbl = self.config.font.render(Square.get_alphacode(col), 1, color)
-                    lbl_pos = (col*SQSIZE + SQSIZE - 20, HEIGHT - 20)
-                    
-                    
-                    #blit
+                    lbl = self.config.font.render(Square.get_alphacode(render_col), 1, color)
+                    lbl_pos = (col * SQSIZE + SQSIZE - 20, HEIGHT - 20)
+                        
+                    # blit
                     surface.blit(lbl, lbl_pos)
-                    
+
     def show_pieces(self, surface):
         for row in range(ROWS):
             for col in range(COLS):
+                # Calculate the row and column based on flip_board
+                render_row = 7 - row if self.flip_board else row
+                render_col = 7 - col if self.flip_board else col
+
                 # piece ?
-                if self.board.squares[row][col].has_piece(): # if we have a piece on a particular square
-                    piece = self.board.squares[row][col].piece
+                if self.board.squares[render_row][render_col].has_piece():  # if we have a piece on a particular square
+                    piece = self.board.squares[render_row][render_col].piece
                     # all pieces except the dragging one
                     if piece is not self.dragger.piece:
                         piece.set_texture(size=80)
-                        img = pygame.image.load(piece.texture) # getting image path into image object
-                        img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2 # centering the image
-                        piece.texture_rect = img.get_rect(center=img_center) # coordinates
-                        surface.blit(img, piece.texture_rect) # rendering the image
-                        
+                        img = pygame.image.load(piece.texture)  # getting image path into image object
+                        img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2  # centering the image
+                        piece.texture_rect = img.get_rect(center=img_center)  # coordinates
+                        surface.blit(img, piece.texture_rect)  # rendering the image
+                                
     def show_moves(self, surface):
         theme = self.config.theme
         if self.dragger.dragging:
@@ -97,13 +105,17 @@ class GameWindow:
             
             # loop all valid moves
             for move in piece.moves:
-                #color
-                color = theme.moves.light if ((move.final.row + move.final.col) & 1 == 0) else theme.moves.dark
+                # Calculate the row and column based on flip_board
+                final_row = 7 - move.final.row if self.flip_board else move.final.row
+                final_col = 7 - move.final.col if self.flip_board else move.final.col
+
+                # color
+                color = theme.moves.light if ((final_row + final_col) & 1 == 0) else theme.moves.dark
                 # rect
-                rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
-                #blit it
+                rect = (final_col * SQSIZE, final_row * SQSIZE, SQSIZE, SQSIZE)
+                # blit it
                 pygame.draw.rect(surface, color, rect)
-                
+                    
     def show_last_move(self, surface):
         theme = self.config.theme
         if self.board.last_move:
@@ -111,26 +123,32 @@ class GameWindow:
             final = self.board.last_move.final
             
             for pos in [initial, final]:
+                # Calculate the row and column based on flip_board
+                render_row = 7 - pos.row if self.flip_board else pos.row
+                render_col = 7 - pos.col if self.flip_board else pos.col
+
                 # color
-                color = theme.trace.light if (pos.row + pos.col) % 2 == 0 else theme.trace.dark
-                
+                color = theme.trace.light if (render_row + render_col) % 2 == 0 else theme.trace.dark
                 # rect
-                rect = (pos.col * SQSIZE, pos.row * SQSIZE, SQSIZE, SQSIZE)
-                
+                rect = (render_col * SQSIZE, render_row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect)
                 
     def show_check(self, surface):
-        theme = self.config.theme
         if Piece.KingInCheck:
-            #color
+            # color
             color = CHECKMATE if Board.checkmate else CHECK
             # rect
-            if(self.constants.next_player == "white"):
+            if self.constants.next_player == "white":
                 row, col = Piece.KingSquares[0]
             else:
                 row, col = Piece.KingSquares[1]
-            rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
-            #blit it
+            
+            # Calculate the row and column based on flip_board
+            render_row = 7 - row if self.flip_board else row
+            render_col = 7 - col if self.flip_board else col
+
+            rect = (render_col * SQSIZE, render_row * SQSIZE, SQSIZE, SQSIZE)
+            # blit it
             pygame.draw.rect(surface, color, rect)
                 
     def show_hover(self, surface ):
@@ -139,7 +157,6 @@ class GameWindow:
                 color = HOVERED_COLOR
                 # rect
                 rect = (self.hovered_sqr.col * SQSIZE, self.hovered_sqr.row * SQSIZE, SQSIZE, SQSIZE)
-                
                 pygame.draw.rect(surface, color, rect, width=3)
                 
     def display_message(self, screen, message):
@@ -235,7 +252,6 @@ class GameWindow:
         Board.stalemate = False
         Piece.KingInCheck = False
         Piece.KingSquares = [(7, 4), (0, 4)] # white, black
-
 
     def make_move(self, algebraic_move: str):
         initial_row, initial_col = Square.parseSquare(algebraic_move[0:2])
