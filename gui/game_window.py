@@ -160,6 +160,68 @@ class GameWindow:
                 rect = (self.hovered_sqr.col * SQSIZE, self.hovered_sqr.row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect, width=3)
                 
+    def show_popup(self, screen, text, angle=0):
+        # Popup dimensions and position
+        popup_width, popup_height = 400, 200
+        popup_x, popup_y = (WIDTH - popup_width) // 2, (HEIGHT - popup_height) // 2
+
+        # Colors
+        background_color = (40, 40, 40) 
+        border_color = (80, 80, 80)  # Soft border color
+        glow_color = (100, 100, 100, 80)  # Transparent glow effect
+        text_color = (255, 255, 255)  # White text
+        spinner_color = (100, 180, 255)  # Cool blue spinner
+        fade_color = (150, 220, 255)  # Lighter fade effect
+
+        # Create popup surface with transparency
+        popup_surface = pygame.Surface((popup_width, popup_height), pygame.SRCALPHA)
+        popup_surface.fill((0, 0, 0, 0))  # Transparent background
+
+        # Glow effect
+        glow_surface = pygame.Surface((popup_width + 20, popup_height + 20), pygame.SRCALPHA)
+        pygame.draw.rect(glow_surface, glow_color, (10, 10, popup_width, popup_height), border_radius=20)
+        screen.blit(glow_surface, (popup_x - 10, popup_y - 10))  # Slight offset for the glow
+
+        # Draw popup with rounded corners
+        pygame.draw.rect(popup_surface, background_color, (0, 0, popup_width, popup_height), border_radius=20)
+        pygame.draw.rect(popup_surface, border_color, (0, 0, popup_width, popup_height), width=3, border_radius=20)
+
+        # Render text
+        font = pygame.font.SysFont('Arial', 32, bold=True)
+        text_surface = font.render(text, True, text_color)
+        text_rect = text_surface.get_rect(center=(popup_width // 2, popup_height // 3))
+
+        # Draw the spinner (a circular segmented rotating ring)
+        spinner_radius = 30
+        spinner_center = (popup_width // 2, popup_height - 55)
+
+        num_segments = 12  # Number of small segments forming the ring
+        segment_angle = 2 * 3.1416 / num_segments  # Angle per segment
+
+        for i in range(num_segments):
+            segment_color = fade_color if i % 3 == 0 else spinner_color  # Alternate colors
+            start_angle = angle + i * segment_angle  # Rotate each segment
+            end_angle = start_angle + segment_angle / 2  # Thin segment
+            
+            pygame.draw.arc(
+                popup_surface,
+                segment_color,
+                (spinner_center[0] - spinner_radius, spinner_center[1] - spinner_radius, spinner_radius * 2, spinner_radius * 2),
+                start_angle, end_angle, 5  # Line thickness
+            )
+
+        # Blit elements onto the screen
+        popup_surface.blit(text_surface, text_rect)
+        screen.blit(popup_surface, (popup_x, popup_y))
+
+        # Update display
+        pygame.display.update()
+
+        # Return updated angle for smooth animation
+        return (angle + 0.3) % (2 * 3.1416)  # Keep rotating smoothly
+
+
+
     def display_message(self, screen, message):
         font = pygame.font.SysFont('Arial', 80, bold=True)
         msg = font.render(message, True, WHITE)  # White text

@@ -15,6 +15,7 @@ class EventHandler:
         self.mode = 1 # single player - 1, multiplayer - 2
         self.client = None
 
+        self.spinner_angle = 0
     def connect_client(self):
         self.mode = 2  # Multiplayer mode
         self.reset()
@@ -34,6 +35,11 @@ class EventHandler:
     def handle_events(self):
         if(self.mode == 2 and self.client):
             self.check_for_opponent_move()
+            
+            if not self.client.opponent_connected.is_set():
+                self.spinner_angle = self.game.show_popup(self.screen, text="Waiting for Opponent......", angle=self.spinner_angle)
+                pygame.time.delay(100)
+                return
             
         for event in pygame.event.get():
             if not self.board.checkmate and not self.board.repetition:
@@ -142,9 +148,10 @@ class EventHandler:
             self.game.toggle_engine_mode()
             self.game.display_message(self.screen, "Changed Mode!!!")
         elif event.key == pygame.K_p:
-            self.game.display_message(self.screen, "Play!!")
             self.game.start_game()
+            self.game.display_message(self.screen, "Play!!")
         elif event.key == pygame.K_c:
+            self.game.display_message(self.screen, "Connecting....")
             self.connect_client()
     
     def update_board(self):

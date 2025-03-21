@@ -29,6 +29,10 @@ class ChessServer:
         client.send(f"player_id:{player_id}".encode('utf-8'))  # Send player ID to client
 
         print(f"Player {player_id} connected.")
+        
+        if len(self.clients) == 2:
+            for c in self.clients:
+                c.send("opponent_connected".encode('utf-8'))
 
         while not self.game_over:
             try:

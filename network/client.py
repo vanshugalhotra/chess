@@ -10,6 +10,7 @@ class ChessClient:
         self.connected = False
         self.latest_move = None  # Store the latest move received from the server
         self.player_id_recieved = threading.Event()
+        self.opponent_connected = threading.Event()
 
     def connect(self):
         """Connect to the server."""
@@ -19,12 +20,15 @@ class ChessClient:
             print("Connected to the server.")
             threading.Thread(target=self.receive_messages).start()
             
-            self.player_id_recieved.wait(timeout=3)
+            self.player_id_recieved.wait(timeout=1)
             if self.player_id is None:
                 print('Failed to connect!!!')
+                return False
+            
                 
         except Exception as e:
             print(f"Failed to connect to the server: {e}")
+            return False
 
     def receive_messages(self):
         """Receive messages from the server."""
@@ -36,6 +40,9 @@ class ChessClient:
                     print(f"You are Player {self.player_id}.")
                 elif data == "not_your_turn":
                     print("It's not your turn.")
+                elif data == "opponent_connected":
+                    print("Opponent Connected!")
+                    self.opponent_connected.set()
                 else:
                     move, player_id = data.split(':')
                     print(f"Player {player_id} made move: {move}")
