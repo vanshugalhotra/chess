@@ -17,6 +17,7 @@ class EventHandler:
 
     def connect_client(self):
         self.mode = 2  # Multiplayer mode
+        self.reset()
         self.client = ChessClient()
         self.client.connect()
         print(f"Player ID: {self.client.player_id}")
@@ -26,13 +27,14 @@ class EventHandler:
             self.game.flip_board = True 
         else:
             self.game.flip_board = False  
-
+        
     def set_play_button(self, play_button):
         self.play_button = play_button
         
     def handle_events(self):
-        if(self.mode == 2):
+        if(self.mode == 2 and self.client):
             self.check_for_opponent_move()
+            
         for event in pygame.event.get():
             if not self.board.checkmate and not self.board.repetition:
                 
@@ -107,7 +109,6 @@ class EventHandler:
 
             move = Move(Square(initial_row, initial_col),
                         Square(released_row, released_col))
-            
             if move.is_valid(self.dragger.piece):
                 captured = self.board.squares[released_row][released_col].has_piece()
                 self.board.make_move(self.dragger.piece, move)
@@ -125,12 +126,18 @@ class EventHandler:
                 self.dragger.piece.clear_moves()
         
         self.dragger.undrag_piece()
+        
+    def reset(self):
+        self.game = self.game.reset()
+        self.board = self.game.board
+        self.dragger = self.game.dragger
     
     def handle_key_down(self, event):
         if event.key == pygame.K_t:
             self.game.change_theme()
         elif event.key == pygame.K_r:
-            self.game.reset()
+            self.reset()
+            self.game.display_message(self.screen, "Reseted!!")
         elif event.key == pygame.K_m:
             self.game.toggle_engine_mode()
             self.game.display_message(self.screen, "Changed Mode!!!")
@@ -142,7 +149,6 @@ class EventHandler:
     
     def update_board(self):
         self.game.update_screen(self.screen)
-        
         
     def check_for_opponent_move(self):
         """Check if an opponent's move has arrived and apply it."""

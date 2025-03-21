@@ -3,7 +3,7 @@ from const import *
 import os
 import copy
 
-from utils import Sound, Position
+from utils import Sound
 from gui import RightPanel,Themes, Dragger
 from game import Board, Piece, Move, Player, Square
 
@@ -36,15 +36,17 @@ class GameWindow:
         
         self.right_side = RightPanel(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
-    # render methods
-    
+    # render methods        
     def update_screen(self, surface):
-        self.show_chess_board(surface)
-        self.show_last_move(surface)
+        self.show_chess_board(surface) 
+        self.show_last_move(surface) 
         self.show_check(surface)
-        self.show_moves(surface)
+        self.show_moves(surface)  
         self.show_pieces(surface)
-        self.show_hover(surface)
+        self.show_hover(surface) 
+
+        if self.dragger.dragging:
+            self.dragger.update_blit(surface)
     
     def show_chess_board(self, surface):
         theme = self.config.theme
@@ -250,7 +252,9 @@ class GameWindow:
         Board.checkmate = False
         Board.stalemate = False
         Piece.KingInCheck = False
-        Piece.KingSquares = [(7, 4), (0, 4)] # white, black
+        Piece.KingSquares = [(7, 4), (0, 4)]
+        
+        return self
 
     def make_move(self, algebraic_move: str):
         initial_row, initial_col = Square.parseSquare(algebraic_move[0:2])
