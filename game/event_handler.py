@@ -37,11 +37,34 @@ class EventHandler:
             self.check_for_opponent_move()
             
             if not self.client.opponent_connected.is_set():
-                self.spinner_angle = self.game.show_popup(self.screen, text="Waiting for Opponent......", angle=self.spinner_angle)
+                self.spinner_angle = self.game.show_popup(
+                self.screen,
+                text="Waiting for opponent...",
+                animation_type="spinner",
+                angle=self.spinner_angle
+                )
                 pygame.time.delay(100)
-                return
+            
+            else:
+                # Show the "Game started" pop-up
+                if not hasattr(self, 'game_start_popup_shown'):
+                    opponent_id = "black" if self.client.player_id == "white" else "white"
+                    self.game.show_popup(
+                    self.screen,
+                    text=f"Game started! Your opponent is Player {opponent_id}",
+                    animation_type="tick"
+                    )
+                    pygame.time.delay(3000) 
+                    self.game_start_popup_shown = True 
             
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+    
+            if self.mode == 2 and self.client and not self.client.opponent_connected.is_set():
+                continue 
+            
             if not self.board.checkmate and not self.board.repetition:
                 
                 if event.type == pygame.MOUSEBUTTONDOWN:

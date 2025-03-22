@@ -160,66 +160,119 @@ class GameWindow:
                 rect = (self.hovered_sqr.col * SQSIZE, self.hovered_sqr.row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect, width=3)
                 
-    def show_popup(self, screen, text, angle=0):
-        # Popup dimensions and position
-        popup_width, popup_height = 400, 200
+    def show_popup(self, screen, text, animation_type="spinner", angle=0):
+        """
+        Display a pop-up with text and an optional animation (spinner or tick mark).
+
+        Parameters:
+            screen: The Pygame screen surface to draw on.
+            text: The text to display in the pop-up.
+            animation_type: The type of animation ("spinner" or "tick").
+            angle: The current angle for the spinner animation (used for rotation).
+
+        Returns:
+            The updated angle for the spinner animation.
+        """
+        # Font and text settings
+        font = pygame.font.SysFont('Arial', 32, bold=True)
+        max_line_width = 350  # Maximum width for text before wrapping
+        line_height = 40  # Height of each line of text
+
+        # Wrap the text into multiple lines if it's too long
+        words = text.split(" ")
+        lines = []
+        current_line = ""
+        for word in words:
+            # Check if adding the next word exceeds the max line width
+            test_line = current_line + " " + word if current_line else word
+            test_width, _ = font.size(test_line)
+            if test_width > max_line_width:
+                lines.append(current_line)  # Add the current line to the list
+                current_line = word  # Start a new line
+            else:
+                current_line = test_line  # Add the word to the current line
+        if current_line:
+            lines.append(current_line)  # Add the last line
+
+        # Calculate popup dimensions based on the number of lines
+        popup_width = max_line_width + 50  # Add padding
+        popup_height = len(lines) * line_height + 120  # Add padding for animation and margins
         popup_x, popup_y = (WIDTH - popup_width) // 2, (HEIGHT - popup_height) // 2
 
         # Colors
-        background_color = (40, 40, 40) 
+        background_color = (40, 40, 40)  # Dark gray background
         border_color = (80, 80, 80)  # Soft border color
-        glow_color = (100, 100, 100, 80)  # Transparent glow effect
         text_color = (255, 255, 255)  # White text
         spinner_color = (100, 180, 255)  # Cool blue spinner
-        fade_color = (150, 220, 255)  # Lighter fade effect
+        tick_color = (0, 255, 0)  # Green tick mark
 
         # Create popup surface with transparency
         popup_surface = pygame.Surface((popup_width, popup_height), pygame.SRCALPHA)
         popup_surface.fill((0, 0, 0, 0))  # Transparent background
 
-        # Glow effect
-        glow_surface = pygame.Surface((popup_width + 20, popup_height + 20), pygame.SRCALPHA)
-        pygame.draw.rect(glow_surface, glow_color, (10, 10, popup_width, popup_height), border_radius=20)
-        screen.blit(glow_surface, (popup_x - 10, popup_y - 10))  # Slight offset for the glow
-
         # Draw popup with rounded corners
         pygame.draw.rect(popup_surface, background_color, (0, 0, popup_width, popup_height), border_radius=20)
         pygame.draw.rect(popup_surface, border_color, (0, 0, popup_width, popup_height), width=3, border_radius=20)
 
-        # Render text
-        font = pygame.font.SysFont('Arial', 32, bold=True)
-        text_surface = font.render(text, True, text_color)
-        text_rect = text_surface.get_rect(center=(popup_width // 2, popup_height // 3))
+        # Render and blit each line of text
+        for i, line in enumerate(lines):
+            text_surface = font.render(line, True, text_color)
+            text_rect = text_surface.get_rect(center=(popup_width // 2, 40 + i * line_height))
+            popup_surface.blit(text_surface, text_rect)
 
-        # Draw the spinner (a circular segmented rotating ring)
-        spinner_radius = 30
-        spinner_center = (popup_width // 2, popup_height - 55)
+        # Draw the animation (spinner or tick mark)
+        if animation_type == "spinner":
+            # Draw a spinner (rotating arc)
+            spinner_radius = 30
+            spinner_center = (popup_width // 2, popup_height - 55)
 
-        num_segments = 12  # Number of small segments forming the ring
-        segment_angle = 2 * 3.1416 / num_segments  # Angle per segment
+            num_segments = 12  # Number of small segments forming the ring
+            segment_angle = 2 * 3.1416 / num_segments  # Angle per segment
 
-        for i in range(num_segments):
-            segment_color = fade_color if i % 3 == 0 else spinner_color  # Alternate colors
-            start_angle = angle + i * segment_angle  # Rotate each segment
-            end_angle = start_angle + segment_angle / 2  # Thin segment
-            
-            pygame.draw.arc(
+            for i in range(num_segments):
+                segment_color = spinner_color if i % 3 == 0 else (spinner_color[0], spinner_color[1], spinner_color[2], 100)  # Alternate opacity
+                start_angle = angle + i * segment_angle  # Rotate each segment
+                end_angle = start_angle + segment_angle / 2  # Thin segment
+                
+                pygame.draw.arc(
+                    popup_surface,
+                    segment_color,
+                    (spinner_center[0] - spinner_radius, spinner_center[1] - spinner_radius, spinner_radius * 2, spinner_radius * 2),
+                    start_angle, end_angle, 5  # Line thickness
+                )
+
+            # Update angle for the next frame
+            angle = (angle + 0.3) % (2 * 3.1416)  # Keep rotating smoothly
+
+        elif animation_type == "tick":
+            # Draw a tick mark (checkmark)
+            tick_radius = 30
+            tick_center = (popup_width // 2, popup_height - 55)
+
+            # Draw the tick mark using lines
+            pygame.draw.line(
                 popup_surface,
-                segment_color,
-                (spinner_center[0] - spinner_radius, spinner_center[1] - spinner_radius, spinner_radius * 2, spinner_radius * 2),
-                start_angle, end_angle, 5  # Line thickness
+                tick_color,
+                (tick_center[0] - tick_radius // 2, tick_center[1]),
+                (tick_center[0], tick_center[1] + tick_radius // 2),
+                width=5
+            )
+            pygame.draw.line(
+                popup_surface,
+                tick_color,
+                (tick_center[0], tick_center[1] + tick_radius // 2),
+                (tick_center[0] + tick_radius // 2, tick_center[1] - tick_radius // 2),
+                width=5
             )
 
-        # Blit elements onto the screen
-        popup_surface.blit(text_surface, text_rect)
+        # Blit the popup surface onto the main screen
         screen.blit(popup_surface, (popup_x, popup_y))
 
-        # Update display
+        # Update the display
         pygame.display.update()
 
-        # Return updated angle for smooth animation
-        return (angle + 0.3) % (2 * 3.1416)  # Keep rotating smoothly
-
+        # Return the updated angle for the spinner animation
+        return angle
 
 
     def display_message(self, screen, message):
