@@ -33,6 +33,8 @@ class ChessServer:
         if len(self.clients) == 2:
             for c in self.clients:
                 c.send("opponent_connected".encode('utf-8'))
+            # Send a message to both clients to start countdown
+            threading.Timer(1, self.broadcast, args=("game_starting",)).start()
 
         while not self.game_over:
             try:

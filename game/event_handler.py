@@ -45,17 +45,24 @@ class EventHandler:
                 )
                 pygame.time.delay(100)
             
-            else:
-                # Show the "Game started" pop-up
-                if not hasattr(self, 'game_start_popup_shown'):
+            else:                    
+                if not hasattr(self, "game_start_popup_shown"):
                     opponent_id = "black" if self.client.player_id == "white" else "white"
+                    for i in range(3, 0, -1):
+                        self.game.show_popup(
+                            self.screen,
+                            text=f"Your opponent is Player {opponent_id}\nStarting in {i}...",
+                        )
+                        pygame.time.delay(1000)  # 1-second delay for countdown
+                    
                     self.game.show_popup(
-                    self.screen,
-                    text=f"Game started! Your opponent is Player {opponent_id}",
-                    animation_type="tick"
+                        self.screen,
+                        text=f"Game started! Your opponent is Player {opponent_id}",
+                        animation_type="tick"
                     )
-                    pygame.time.delay(3000) 
-                    self.game_start_popup_shown = True 
+                    pygame.time.delay(1000)  # Small delay before game starts
+                    self.game_start_popup_shown = True
+
             
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

@@ -20,7 +20,7 @@ class ChessClient:
             print("Connected to the server.")
             threading.Thread(target=self.receive_messages).start()
             
-            self.player_id_recieved.wait(timeout=1)
+            #self.player_id_recieved.wait()
             if self.player_id is None:
                 print('Failed to connect!!!')
                 return False
