@@ -51,17 +51,18 @@ class EventHandler:
                     for i in range(3, 0, -1):
                         self.game.show_popup(
                             self.screen,
-                            text=f"Your opponent is Player {opponent_id}\nStarting in {i}...",
+                            text=f"Starting in {i}...",
                         )
                         pygame.time.delay(1000)  # 1-second delay for countdown
                     
                     self.game.show_popup(
                         self.screen,
-                        text=f"Game started! Your opponent is Player {opponent_id}",
+                        text=f"Game started! \nYour opponent is Player {opponent_id}",
                         animation_type="tick"
                     )
-                    pygame.time.delay(1000)  # Small delay before game starts
+                    pygame.time.delay(2000)  # Small delay before game starts
                     self.game_start_popup_shown = True
+                    self.game.start_game()
 
             
         for event in pygame.event.get():
@@ -174,7 +175,7 @@ class EventHandler:
         elif event.key == pygame.K_r:
             self.reset()
             self.game.display_message(self.screen, "Reseted!!")
-        elif event.key == pygame.K_m:
+        elif event.key == pygame.K_m and self.mode != 2:
             self.game.toggle_engine_mode()
             self.game.display_message(self.screen, "Changed Mode!!!")
         elif event.key == pygame.K_p:

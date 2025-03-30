@@ -2,7 +2,7 @@ import socket
 import threading
 
 class ChessServer:
-    def __init__(self, host='127.0.0.1', port=65432):
+    def __init__(self, host='0.0.0.0', port=65432):
         self.host = host
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,8 +33,6 @@ class ChessServer:
         if len(self.clients) == 2:
             for c in self.clients:
                 c.send("opponent_connected".encode('utf-8'))
-            # Send a message to both clients to start countdown
-            threading.Timer(1, self.broadcast, args=("game_starting",)).start()
 
         while not self.game_over:
             try:
