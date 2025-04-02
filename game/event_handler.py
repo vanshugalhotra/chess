@@ -16,6 +16,7 @@ class EventHandler:
         self.client = None
 
         self.spinner_angle = 0
+        
     def connect_client(self):
         self.mode = 2  # Multiplayer mode
         self.reset()
@@ -24,10 +25,7 @@ class EventHandler:
         print(f"Player ID: {self.client.player_id}")
 
         # Set flip_board based on player_id
-        if self.client.player_id == "black":
-            self.game.flip_board = True 
-        else:
-            self.game.flip_board = False  
+        self.game.flip_board = self.client.player_id == "black"
         
     def set_play_button(self, play_button):
         self.play_button = play_button
