@@ -19,10 +19,10 @@ class Main:
         self.game = GameWindow(surface=self.screen)
         self.screen.fill(BACKGROUND)  
         
-        self.event_handler = EventHandler(game=self.game, screen=self.screen)
         
         # engine things
         self.engine = ChessEngine(game=self.game)
+        self.event_handler = EventHandler(game=self.game, screen=self.screen, engine=self.engine)
         
         self.userMove = None
     

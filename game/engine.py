@@ -43,3 +43,39 @@ class ChessEngine:
         bestmove_thread.start()
         
         return self.bestMove
+    
+    def analyze(self, cur_fen):
+        
+        eval_before = self.game.constants.prev_score
+        eval_after = self.engine.analyze_position(fen=cur_fen)
+
+        score = -(eval_after + eval_before)
+        move_classification = self._classify_move(score)
+        
+        # print(f'{"white" if self.game.constants.next_player == "black" else "black"} moved ::: Score went from {eval_before}  --> {-eval_after} ::: score: {score}')
+
+        return {
+            "before": eval_before,
+            "after": eval_after,
+            "score": score,
+            "classification": move_classification
+        }
+        
+    @staticmethod
+    def _classify_move(score):
+        """Classify move based solely on score"""
+        if(score >= 0 and score <= 35):
+            return "BEST"
+        elif(score > 35 and score < 100):
+            return "EXCELLENT"
+        elif(score < 0 and score >= -35):
+            return "GOOD"
+        elif(score < -35 and score >= -305):
+            return "MISTAKE"
+        elif(score < -305):
+            return "BLUNDER"
+        elif(score > 100 and score < 300):
+            return "GREAT"
+        elif(score >= 300):
+            return "BRILLIANT"
+        return "INACCURACY"

@@ -4,8 +4,9 @@ from const import SQSIZE
 from game import Move, Square
 from network import ChessClient
 
+
 class EventHandler:
-    def __init__(self, game, screen):
+    def __init__(self, game, screen, engine):
         self.game = game
         self.board = self.game.board
         self.dragger = self.game.dragger
@@ -14,6 +15,7 @@ class EventHandler:
         
         self.mode = 1 # single player - 1, multiplayer - 2
         self.client = None
+        self.engine = engine
 
         self.spinner_angle = 0
         
@@ -146,6 +148,7 @@ class EventHandler:
                         Square(released_row, released_col))
             if move.is_valid(self.dragger.piece):
                 captured = self.board.squares[released_row][released_col].has_piece()
+                
                 self.board.make_move(self.dragger.piece, move)
                 self.game.play_sound(captured)
                 self.update_board()
@@ -157,6 +160,14 @@ class EventHandler:
                     self.client.send_move(alg_move)
                 
                 self.game.next_turn()
+                
+                cur_fen = self.board.getFEN()
+                
+                move_analysis = self.engine.analyze(cur_fen=cur_fen)
+                self.game.constants.prev_score = move_analysis["score"]
+                
+                print(move_analysis)
+                
             else:
                 self.dragger.piece.clear_moves()
         

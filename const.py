@@ -46,6 +46,7 @@ class Constants:
         self.enPas = None # enPas square
         self.history = ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1']
         self.move_list = [] 
+        self.prev_score = 0 # previous evaluation score
         
 # ! need to refactor - in check
 
