@@ -22,7 +22,9 @@ class EventHandler:
     def connect_client(self):
         self.mode = 2  # Multiplayer mode
         self.reset()
-        self.client = ChessClient()
+        ip = input("Enter server ip: ")
+        
+        self.client = ChessClient(host=ip)
         self.client.connect()
         print(f"Player ID: {self.client.player_id}")
 

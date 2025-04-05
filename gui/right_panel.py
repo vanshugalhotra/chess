@@ -1,4 +1,3 @@
-import pygame
 from utils import Position
 from .components import Text, Clock, Banner, PlayerCard, CircularText, Button, MoveList
 from const import WIDTH, JET_BLACK, WHITE, RED
