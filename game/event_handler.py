@@ -164,10 +164,16 @@ class EventHandler:
                 cur_fen = self.board.getFEN()
                 
                 move_analysis = self.engine.analyze(cur_fen=cur_fen)
-                self.game.constants.prev_score = move_analysis["score"]
+                self.game.constants.prev_score = move_analysis["after"]
                 
-                print(move_analysis)
-                
+                self.game.last_move_info = {
+                    "square": (released_row, released_col),
+                    "score": move_analysis["score"],
+                    "classification": move_analysis["classification"],
+                    "icon": move_analysis["icon"],
+                    "color": move_analysis["color"],
+                    "time": pygame.time.get_ticks()
+                }
             else:
                 self.dragger.piece.clear_moves()
         

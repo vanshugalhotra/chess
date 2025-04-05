@@ -34,6 +34,8 @@ class GameWindow:
         
         self.scroll_y = 0
         
+        self.last_move_info = None
+        
         self.right_side = RightPanel(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
     # render methods        
@@ -44,6 +46,7 @@ class GameWindow:
         self.show_moves(surface)  
         self.show_pieces(surface)
         self.show_hover(surface) 
+        self.draw_analysis_popup(surface)
 
         if self.dragger.dragging:
             self.dragger.update_blit(surface)
@@ -273,6 +276,46 @@ class GameWindow:
 
         # Return the updated angle for the spinner animation
         return angle
+
+    def draw_analysis_popup(self, surface):
+        info = self.last_move_info
+        if not info:
+            return
+
+        elapsed = pygame.time.get_ticks() - info["time"]
+        if elapsed > 3000:
+            self.last_move_info = None
+            return
+
+        row, col = info["square"]
+        if self.flip_board:
+            row, col = 7 - row, 7 - col
+
+        square_x = col * SQSIZE
+        square_y = row * SQSIZE
+
+        popup_width = 150
+        popup_height = 40
+        popup_x = square_x + SQSIZE // 2 - popup_width // 2
+        if square_y - popup_height - 5 < 0:
+            popup_y = square_y + SQSIZE + 5  # too high, draw below
+        else:
+            popup_y = square_y - popup_height - 5
+
+        # Background
+        pygame.draw.rect(surface, (255, 255, 240), (popup_x, popup_y, popup_width, popup_height), border_radius=10)
+        pygame.draw.rect(surface, (180, 180, 180), (popup_x, popup_y, popup_width, popup_height), 2, border_radius=10)
+
+        # Fonts
+        font = pygame.font.SysFont("Arial", 18, bold=True)
+        icon_surf = font.render(info["icon"], True, info["color"])
+        label_surf = font.render(info["classification"], True, (0, 0, 0))
+
+        # Icon (colored dot)
+        surface.blit(icon_surf, (popup_x + 10, popup_y + popup_height // 2 - icon_surf.get_height() // 2))
+
+        # Label text
+        surface.blit(label_surf, (popup_x + 40, popup_y + popup_height // 2 - label_surf.get_height() // 2))
 
 
     def display_message(self, screen, message):

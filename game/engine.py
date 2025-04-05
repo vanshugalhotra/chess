@@ -50,32 +50,35 @@ class ChessEngine:
         eval_after = self.engine.analyze_position(fen=cur_fen)
 
         score = -(eval_after + eval_before)
-        move_classification = self._classify_move(score)
-        
-        # print(f'{"white" if self.game.constants.next_player == "black" else "black"} moved ::: Score went from {eval_before}  --> {-eval_after} ::: score: {score}')
-
+        label, color, icon = self._classify_move(score)
         return {
             "before": eval_before,
             "after": eval_after,
             "score": score,
-            "classification": move_classification
+            "classification": label,
+            "color": color,
+            "icon": icon
         }
+
+
         
     @staticmethod
     def _classify_move(score):
-        """Classify move based solely on score"""
-        if(score >= 0 and score <= 35):
-            return "BEST"
-        elif(score > 35 and score < 100):
-            return "EXCELLENT"
-        elif(score < 0 and score >= -35):
-            return "GOOD"
-        elif(score < -35 and score >= -305):
-            return "MISTAKE"
-        elif(score < -305):
-            return "BLUNDER"
-        elif(score > 100 and score < 300):
-            return "GREAT"
-        elif(score >= 300):
-            return "BRILLIANT"
-        return "INACCURACY"
+        """Classify move and return label, color, and a dot icon"""
+        if 0 <= score <= 35:
+            return "BEST", (0, 200, 0), "●"  # Green
+        elif 35 < score < 100:
+            return "EXCELLENT", (34, 139, 34), "●"
+        elif -35 <= score < 0:
+            return "GOOD", (70, 130, 180), "●"  # Steel Blue
+        elif -305 <= score < -35:
+            return "MISTAKE", (255, 165, 0), "●"  # Orange
+        elif score < -305:
+            return "BLUNDER", (220, 20, 60), "●"  # Crimson
+        elif 100 < score < 300:
+            return "GREAT", (0, 128, 255), "●"
+        elif score >= 300:
+            return "BRILLIANT", (255, 215, 0), "●"  # Gold
+        return "INACCURACY", (128, 128, 128), "●"  # Gray
+
+
