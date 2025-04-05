@@ -161,19 +161,19 @@ class EventHandler:
                 
                 self.game.next_turn()
                 
-                cur_fen = self.board.getFEN()
-                
-                move_analysis = self.engine.analyze(cur_fen=cur_fen)
-                self.game.constants.prev_score = move_analysis["after"]
-                
-                self.game.last_move_info = {
-                    "square": (released_row, released_col),
-                    "score": move_analysis["score"],
-                    "classification": move_analysis["classification"],
-                    "icon": move_analysis["icon"],
-                    "color": move_analysis["color"],
-                    "time": pygame.time.get_ticks()
-                }
+                if(self.game.analysis):
+                    cur_fen = self.board.getFEN()
+                    move_analysis = self.engine.analyze(cur_fen=cur_fen)
+                    self.game.constants.prev_score = move_analysis["after"]
+                    
+                    self.game.last_move_info = {
+                        "square": (released_row, released_col),
+                        "score": move_analysis["score"],
+                        "classification": move_analysis["classification"],
+                        "icon": move_analysis["icon"],
+                        "color": move_analysis["color"],
+                        "time": pygame.time.get_ticks()
+                    }
             else:
                 self.dragger.piece.clear_moves()
         
@@ -199,6 +199,9 @@ class EventHandler:
         elif event.key == pygame.K_c:
             self.game.display_message(self.screen, "Connecting....")
             self.connect_client()
+        elif event.key == pygame.K_a:
+            mode = self.game.toggle_analysis()
+            self.game.display_message(self.screen, f"ANALYSIS MODE: {mode}")
     
     def update_board(self):
         self.game.update_screen(self.screen)

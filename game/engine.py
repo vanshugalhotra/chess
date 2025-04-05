@@ -44,10 +44,10 @@ class ChessEngine:
         
         return self.bestMove
     
-    def analyze(self, cur_fen):
+    def analyze(self, cur_fen, depth=3):
         
         eval_before = self.game.constants.prev_score
-        eval_after = self.engine.analyze_position(fen=cur_fen)
+        eval_after = self.engine.analyze_position(fen=cur_fen, depth=depth)
 
         score = -(eval_after + eval_before)
         label, color, icon = self._classify_move(score)

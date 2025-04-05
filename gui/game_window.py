@@ -35,6 +35,7 @@ class GameWindow:
         self.scroll_y = 0
         
         self.last_move_info = None
+        self.analysis = False
         
         self.right_side = RightPanel(surface=self.surface, player1=self.white, player2=self.black, winner=self.winner)
         
@@ -45,8 +46,9 @@ class GameWindow:
         self.show_check(surface)
         self.show_moves(surface)  
         self.show_pieces(surface)
-        self.show_hover(surface) 
-        self.draw_analysis_popup(surface)
+        self.show_hover(surface)
+        if(self.analysis): 
+            self.draw_analysis_popup(surface)
 
         if self.dragger.dragging:
             self.dragger.update_blit(surface)
@@ -317,7 +319,6 @@ class GameWindow:
         # Label text
         surface.blit(label_surf, (popup_x + 40, popup_y + popup_height // 2 - label_surf.get_height() // 2))
 
-
     def display_message(self, screen, message):
         font = pygame.font.SysFont('Arial', 80, bold=True)
         msg = font.render(message, True, WHITE)  # White text
@@ -411,6 +412,7 @@ class GameWindow:
         Board.stalemate = False
         Piece.KingInCheck = False
         Piece.KingSquares = [(7, 4), (0, 4)]
+        self.constants.prev_score = 0
         
         return self
 
@@ -428,3 +430,11 @@ class GameWindow:
         
         self.board.calc_moves(piece, initial_row, initial_col)
         self.board.make_move(piece, move)
+        
+    def toggle_analysis(self):
+        self.constants.prev_score = 0
+        if(self.analysis):
+            self.analysis = False
+            return "ON"
+        self.analysis = True
+        return "OFF"

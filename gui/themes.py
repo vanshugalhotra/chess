@@ -29,4 +29,4 @@ class Themes:
         gray = Theme((120, 119, 118), (86, 85, 84), (99, 126, 143), (82, 102, 128), '#C86464', '#C84646')
         green = Theme((234, 235, 200), (119, 154, 88), (244, 247, 116), (172, 195, 51), '#C86464', '#C84646')
         
-        self.themes = [blue, gray, brown, green]
+        self.themes = [green, brown, blue, gray]
