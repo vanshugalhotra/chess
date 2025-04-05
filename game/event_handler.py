@@ -22,7 +22,8 @@ class EventHandler:
     def connect_client(self):
         self.mode = 2  # Multiplayer mode
         self.reset()
-        ip = input("Enter server ip: ")
+        # ip = input("Enter server ip: ")
+        ip = "192.168.1.43"
         
         self.client = ChessClient(host=ip)
         self.client.connect()
@@ -59,7 +60,7 @@ class EventHandler:
                     
                     self.game.show_popup(
                         self.screen,
-                        text=f"Game started! \nYour opponent is Player {opponent_id}",
+                        text=f"Game started! Your opponent is Player {opponent_id}",
                         animation_type="tick"
                     )
                     pygame.time.delay(2000)  # Small delay before game starts
@@ -158,15 +159,17 @@ class EventHandler:
                 alg_move = move.initial.get_notation()
                 alg_move += move.final.get_notation()
                 
-                if(self.mode == 2):
-                    self.client.send_move(alg_move)
                 
                 self.game.next_turn()
+                score = 0
                 
                 if(self.game.analysis):
                     cur_fen = self.board.getFEN()
                     move_analysis = self.engine.analyze(cur_fen=cur_fen)
-                    self.game.constants.prev_score = move_analysis["after"]
+                    if(self.mode != 2):
+                        self.game.constants.prev_score = move_analysis["after"]
+                    
+                    score = move_analysis["after"]
                     
                     self.game.last_move_info = {
                         "square": (released_row, released_col),
@@ -176,6 +179,11 @@ class EventHandler:
                         "color": move_analysis["color"],
                         "time": pygame.time.get_ticks()
                     }
+                    
+                print(f"{move_analysis["before"]} ---> {move_analysis["after"]} ::: {move_analysis["score"]}")
+                if(self.mode == 2):
+                    self.client.send_move(alg_move, score)
+                
             else:
                 self.dragger.piece.clear_moves()
         
@@ -220,6 +228,8 @@ class EventHandler:
                 self.game.make_move(move_str)
                 self.update_board()
                 self.game.next_turn()
+                
+                self.game.constants.prev_score = self.client.score
 
                 # Clear the latest move to avoid reprocessing
                 self.client.latest_move = None

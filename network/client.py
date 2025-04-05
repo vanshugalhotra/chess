@@ -11,6 +11,7 @@ class ChessClient:
         self.latest_move = None  # Store the latest move received from the server
         self.player_id_recieved = threading.Event()
         self.opponent_connected = threading.Event()
+        self.score = 0
 
     def connect(self):
         """Connect to the server."""
@@ -35,6 +36,7 @@ class ChessClient:
         while self.connected:
             try:
                 data = self.client.recv(1024).decode('utf-8')
+                
                 if data.startswith("player_id:"):
                     self.player_id = data.split(':')[1]  # "white" or "black"
                     print(f"You are Player {self.player_id}.")
@@ -44,19 +46,24 @@ class ChessClient:
                     print("Opponent Connected!")
                     self.opponent_connected.set()
                 else:
-                    move, player_id = data.split(':')
-                    print(f"Player {player_id} made move: {move}")
-                    self.latest_move = move  # Store the latest move
+                    parts = data.split(':')
+                    if len(parts) == 3:
+                        move, score, player_id = parts
+                        self.latest_move = move
+                        self.score = int(score)
+                    else:
+                        print(f"Received unknown data: {data}")
+
             except Exception as e:
                 print(f"Connection lost: {e}")
                 self.connected = False
                 break
 
-    def send_move(self, move):
+    def send_move(self, move, score):
         """Send a move to the server."""
         if self.connected:
             try:
-                message = f"{move}:{self.player_id}"
+                message = f"{move}:{score}:{self.player_id}"
                 self.client.send(message.encode('utf-8'))
             except Exception as e:
                 print(f"Failed to send move: {e}")

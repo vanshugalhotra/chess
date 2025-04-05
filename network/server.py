@@ -40,7 +40,7 @@ class ChessServer:
                 if not data:
                     break
 
-                move, player_id = data.split(':')
+                move, score, player_id = data.split(':')
                 if player_id == self.current_turn:
                     print(f"Player {player_id} made move: {move}")
                     self.broadcast(data, sender=client)  # Send move to other player
