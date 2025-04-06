@@ -3,7 +3,6 @@ from const import *
 import os
 import sys
 import copy
-import time
 
 from utils import Sound
 from gui import RightPanel,Themes, Dragger

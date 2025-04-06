@@ -52,10 +52,13 @@ class EventHandler:
                         
                         # Set flip_board based on player_id
                         self.game.flip_board = self.client.player_id == "black"
+                        
                         if(self.client.player_id == "white"):
                             self.game.white.name = name
+                            self.game.current_player = self.game.white
                         else:
                             self.game.player2.name = name
+                            self.game.current_player = self.game.player2
                         
                         pygame.time.delay(1500)  # Show success message for 1.5 seconds
                         self.ip_popup.hide()
