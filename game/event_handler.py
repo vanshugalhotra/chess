@@ -3,7 +3,7 @@ import sys
 from const import SQSIZE
 from game import Move, Square
 from network import ChessClient
-from .input_popup import IPInputPopup
+from .input_popup import ConnectionPopup
 
 class EventHandler:
     def __init__(self, game, screen, engine):
@@ -24,7 +24,7 @@ class EventHandler:
         self.reset()
         
         if not hasattr(self, 'ip_popup'):
-            self.ip_popup = IPInputPopup(self.screen) 
+            self.ip_popup = ConnectionPopup(self.screen) 
         
         self.ip_popup.show()
         connecting = False
@@ -41,7 +41,8 @@ class EventHandler:
                     print("Exiting...")
                     exit()
                 elif result is not None and not connecting:
-                    ip = result
+                    ip = result["ip"]
+                    name = result["username"]
                     connecting = True
                     
                     try:
@@ -51,18 +52,20 @@ class EventHandler:
                         
                         # Set flip_board based on player_id
                         self.game.flip_board = self.client.player_id == "black"
+                        if(self.client.player_id == "white"):
+                            self.game.white.name = name
+                        else:
+                            self.game.player2.name = name
+                        
                         pygame.time.delay(1500)  # Show success message for 1.5 seconds
                         self.ip_popup.hide()
                         return  # Exit the connection process
-                        
                     except Exception as e:
                         self.ip_popup.set_error(f"Failed to connect: {str(e)}")
                         connecting = False
             
-            # Your normal game rendering here
-            self.screen.fill((255, 255, 255))  # Clear screen
-            # ... draw your chess board and pieces ...
             
+            self.game.update_screen(self.screen)
             # Draw the popup on top
             self.ip_popup.draw()
             
@@ -87,7 +90,7 @@ class EventHandler:
             
             else:                    
                 if not hasattr(self, "game_start_popup_shown"):
-                    opponent_id = "black" if self.client.player_id == "white" else "white"
+                    opponent_id = self.game.player2.name if self.client.player_id == "white" else self.game.white.name
                     for i in range(3, 0, -1):
                         self.game.show_popup(
                             self.screen,
