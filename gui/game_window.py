@@ -1,10 +1,13 @@
 import pygame
 from const import *
 import os
+import sys
 import copy
+import time
 
 from utils import Sound
 from gui import RightPanel,Themes, Dragger
+from network import ChessClient
 from game import Board, Piece, Move, Player, Square
 
 class GameWindow:
@@ -438,3 +441,4 @@ class GameWindow:
             return "ON"
         self.analysis = True
         return "OFF"
+

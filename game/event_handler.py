@@ -3,7 +3,7 @@ import sys
 from const import SQSIZE
 from game import Move, Square
 from network import ChessClient
-
+from .input_popup import IPInputPopup
 
 class EventHandler:
     def __init__(self, game, screen, engine):
@@ -22,15 +22,52 @@ class EventHandler:
     def connect_client(self):
         self.mode = 2  # Multiplayer mode
         self.reset()
-        # ip = input("Enter server ip: ")
-        ip = "192.168.1.43"
         
-        self.client = ChessClient(host=ip)
-        self.client.connect()
-        print(f"Player ID: {self.client.player_id}")
+        if not hasattr(self, 'ip_popup'):
+            self.ip_popup = IPInputPopup(self.screen) 
+        
+        self.ip_popup.show()
+        connecting = False
+        
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                    
+                result = self.ip_popup.handle_event(event)
+                if result == "cancel":
+                    self.ip_popup.hide()
+                    print("Exiting...")
+                    exit()
+                elif result is not None and not connecting:
+                    ip = result
+                    connecting = True
+                    
+                    try:
+                        self.client = ChessClient(host=ip)
+                        self.client.connect()
+                        self.ip_popup.set_success(f"Connected successfully! Player ID: {self.client.player_id}")
+                        
+                        # Set flip_board based on player_id
+                        self.game.flip_board = self.client.player_id == "black"
+                        pygame.time.delay(1500)  # Show success message for 1.5 seconds
+                        self.ip_popup.hide()
+                        return  # Exit the connection process
+                        
+                    except Exception as e:
+                        self.ip_popup.set_error(f"Failed to connect: {str(e)}")
+                        connecting = False
+            
+            # Your normal game rendering here
+            self.screen.fill((255, 255, 255))  # Clear screen
+            # ... draw your chess board and pieces ...
+            
+            # Draw the popup on top
+            self.ip_popup.draw()
+            
+            pygame.display.flip()
 
-        # Set flip_board based on player_id
-        self.game.flip_board = self.client.player_id == "black"
         
     def set_play_button(self, play_button):
         self.play_button = play_button
@@ -180,7 +217,8 @@ class EventHandler:
                         "time": pygame.time.get_ticks()
                     }
                     
-                print(f"{move_analysis["before"]} ---> {move_analysis["after"]} ::: {move_analysis["score"]}")
+                    print(f"{move_analysis['before']} ---> {move_analysis['after']} ::: {move_analysis['score']}")
+
                 if(self.mode == 2):
                     self.client.send_move(alg_move, score)
                 

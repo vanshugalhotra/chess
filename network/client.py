@@ -17,8 +17,8 @@ class ChessClient:
         """Connect to the server."""
         try:
             self.client.connect((self.host, self.port))
-            self.connected = True
             print("Connected to the server.")
+            self.connected = True
             threading.Thread(target=self.receive_messages).start()
             
             # self.player_id_recieved.wait()
@@ -26,10 +26,12 @@ class ChessClient:
                 print('Failed to connect!!!')
                 return False
             
-                
+        except socket.gaierror:
+            raise ConnectionError("Invalid IP Address! Please check and try again.")
+        except socket.timeout:
+            raise ConnectionError("Connection timed out! Server is not reachable.")
         except Exception as e:
-            print(f"Failed to connect to the server: {e}")
-            return False
+            raise ConnectionError(f"Failed to connect to the server: {e}")
 
     def receive_messages(self):
         """Receive messages from the server."""
