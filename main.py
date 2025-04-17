@@ -14,7 +14,7 @@ class Main:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH+WIDTH_OFFSET, HEIGHT+HEIGHT_OFFSET), pygame.DOUBLEBUF)
-        pygame.display.set_caption(f"{NAME} {VERSION} - by {AUTHOR}\t\tEngine {VERSION} ( {ENGINE} ) - by {AUTHOR}")
+        pygame.display.set_caption(f"{NAME} {VERSION} - by {AUTHOR} & Manglam\t\tEngine {VERSION} ( {ENGINE} ) - by {AUTHOR}")
         
         self.game = GameWindow(surface=self.screen)
         self.screen.fill(BACKGROUND)  

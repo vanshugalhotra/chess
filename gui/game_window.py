@@ -26,8 +26,8 @@ class GameWindow:
     
         initial_time = INITIAL_TIME
         
-        self.white = Player("Vanshu Galhotra", "me.png", initial_time=initial_time)
-        self.player2 = Player("Chamar", "chamar.png", initial_time=initial_time)
+        self.white = Player("Vanshu Galhotra", "mai.jpg", initial_time=initial_time)
+        self.player2 = Player("Manglam", "chamar.png", initial_time=initial_time)
         self.black = self.player2
         self.engine = Player("Ustaad Ji", "ustaad.png", initial_time=initial_time)
         self.current_player = self.white
